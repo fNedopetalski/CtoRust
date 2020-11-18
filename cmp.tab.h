@@ -34,8 +34,8 @@
 /* Undocumented macros, especially those whose name start with YY_,
    are private implementation details.  Do not rely on them.  */
 
-#ifndef YY_YY_ARITIMETICA_TAB_H_INCLUDED
-# define YY_YY_ARITIMETICA_TAB_H_INCLUDED
+#ifndef YY_YY_CMP_TAB_H_INCLUDED
+# define YY_YY_CMP_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -58,13 +58,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 36 "aritimetica.y"
+#line 36 "cmp.y"
 
     char *nome;
     int valor;
     struct syntaticno *no;
 
-#line 68 "aritimetica.tab.h"
+#line 68 "cmp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -77,4 +77,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_ARITIMETICA_TAB_H_INCLUDED  */
+#endif /* !YY_YY_CMP_TAB_H_INCLUDED  */

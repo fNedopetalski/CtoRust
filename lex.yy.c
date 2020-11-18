@@ -444,9 +444,9 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "aritimetica.l"
-#line 3 "aritimetica.l"
-#include "aritimetica.tab.h"
+#line 1 "cmp.l"
+#line 3 "cmp.l"
+#include "cmp.tab.h"
 #line 451 "lex.yy.c"
 #line 452 "lex.yy.c"
 
@@ -665,7 +665,7 @@ YY_DECL
 		}
 
 	{
-#line 6 "aritimetica.l"
+#line 6 "cmp.l"
 
 #line 671 "lex.yy.c"
 
@@ -727,42 +727,42 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 7 "aritimetica.l"
+#line 7 "cmp.l"
 {}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 8 "aritimetica.l"
+#line 8 "cmp.l"
 { return '+'; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 9 "aritimetica.l"
+#line 9 "cmp.l"
 { return '-'; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 10 "aritimetica.l"
+#line 10 "cmp.l"
 { return '*'; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 11 "aritimetica.l"
+#line 11 "cmp.l"
 { return '/'; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 12 "aritimetica.l"
+#line 12 "cmp.l"
 { return '('; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 13 "aritimetica.l"
+#line 13 "cmp.l"
 { return ')'; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 15 "aritimetica.l"
+#line 15 "cmp.l"
 { 
     yylval.valor = atoi(yytext);
     return NUMBER; 
@@ -770,7 +770,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 20 "aritimetica.l"
+#line 20 "cmp.l"
 {
     yylval.nome = strdup(yytext);
     return IDENT; 
@@ -778,12 +778,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 25 "aritimetica.l"
+#line 25 "cmp.l"
 { return yytext[0]; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 27 "aritimetica.l"
+#line 27 "cmp.l"
 ECHO;
 	YY_BREAK
 #line 790 "lex.yy.c"
@@ -1791,7 +1791,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 27 "aritimetica.l"
+#line 27 "cmp.l"
 
 
 

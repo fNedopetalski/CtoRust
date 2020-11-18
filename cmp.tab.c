@@ -66,7 +66,7 @@
 
 
 /* First part of user prologue.  */
-#line 1 "aritimetica.y"
+#line 1 "cmp.y"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -98,7 +98,7 @@ simbolo *simbolo_existe(char *nome);
 syntaticno *novo_syntaticno(char *label, int filhos);
 void debug(syntaticno *root);
 
-#line 102 "aritimetica.tab.c"
+#line 102 "cmp.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -131,8 +131,8 @@ void debug(syntaticno *root);
 
 /* Use api.header.include to #include this header
    instead of duplicating it here.  */
-#ifndef YY_YY_ARITIMETICA_TAB_H_INCLUDED
-# define YY_YY_ARITIMETICA_TAB_H_INCLUDED
+#ifndef YY_YY_CMP_TAB_H_INCLUDED
+# define YY_YY_CMP_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -155,13 +155,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 36 "aritimetica.y"
+#line 36 "cmp.y"
 
     char *nome;
     int valor;
     struct syntaticno *no;
 
-#line 165 "aritimetica.tab.c"
+#line 165 "cmp.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -174,7 +174,7 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_ARITIMETICA_TAB_H_INCLUDED  */
+#endif /* !YY_YY_CMP_TAB_H_INCLUDED  */
 
 
 
@@ -1336,7 +1336,7 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 53 "aritimetica.y"
+#line 53 "cmp.y"
                      { if (errorc > 0) 
                         printf("%d erro(s) encontrado(s)", errorc);
                     else {
@@ -1346,115 +1346,115 @@ yyreduce:
                         debug(root);
                     }
                 }
-#line 1350 "aritimetica.tab.c"
+#line 1350 "cmp.tab.c"
     break;
 
   case 3:
-#line 64 "aritimetica.y"
+#line 64 "cmp.y"
                    {
         (yyval.no) = novo_syntaticno("stmts", 2);
         (yyval.no)->filhos[0] = (yyvsp[-1].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1360 "aritimetica.tab.c"
+#line 1360 "cmp.tab.c"
     break;
 
   case 4:
-#line 69 "aritimetica.y"
+#line 69 "cmp.y"
            { (yyval.no) = (yyvsp[0].no); }
-#line 1366 "aritimetica.tab.c"
+#line 1366 "cmp.tab.c"
     break;
 
   case 5:
-#line 72 "aritimetica.y"
+#line 72 "cmp.y"
                       {
         char aux[20];
         sprintf(aux, "%s=", (yyvsp[-2].nome));
         (yyval.no) = novo_syntaticno(strdup(aux), 1);
         (yyval.no)->filhos[0] = (yyvsp[0].no);
     }
-#line 1377 "aritimetica.tab.c"
+#line 1377 "cmp.tab.c"
     break;
 
   case 6:
-#line 80 "aritimetica.y"
+#line 80 "cmp.y"
             { (yyval.no) = (yyvsp[0].no); }
-#line 1383 "aritimetica.tab.c"
+#line 1383 "cmp.tab.c"
     break;
 
   case 8:
-#line 84 "aritimetica.y"
+#line 84 "cmp.y"
                      {
         (yyval.no) = novo_syntaticno("+", 2);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1393 "aritimetica.tab.c"
+#line 1393 "cmp.tab.c"
     break;
 
   case 9:
-#line 89 "aritimetica.y"
+#line 89 "cmp.y"
                     {
         (yyval.no) = novo_syntaticno("-", 2);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1403 "aritimetica.tab.c"
+#line 1403 "cmp.tab.c"
     break;
 
   case 10:
-#line 94 "aritimetica.y"
+#line 94 "cmp.y"
            { (yyval.no) = (yyvsp[0].no); }
-#line 1409 "aritimetica.tab.c"
+#line 1409 "cmp.tab.c"
     break;
 
   case 11:
-#line 97 "aritimetica.y"
+#line 97 "cmp.y"
                        {
         (yyval.no) = novo_syntaticno("*", 2);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
 }
-#line 1419 "aritimetica.tab.c"
+#line 1419 "cmp.tab.c"
     break;
 
   case 12:
-#line 102 "aritimetica.y"
+#line 102 "cmp.y"
                       {
         (yyval.no) = novo_syntaticno("/", 2);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1429 "aritimetica.tab.c"
+#line 1429 "cmp.tab.c"
     break;
 
   case 13:
-#line 107 "aritimetica.y"
+#line 107 "cmp.y"
                     { (yyval.no) = (yyvsp[0].no); }
-#line 1435 "aritimetica.tab.c"
+#line 1435 "cmp.tab.c"
     break;
 
   case 14:
-#line 110 "aritimetica.y"
+#line 110 "cmp.y"
                       {
         /*$$ = novo_syntaticno("()", 1);
         $$->filhos[0] = $2;*/
         (yyval.no) = (yyvsp[-1].no);
 }
-#line 1445 "aritimetica.tab.c"
+#line 1445 "cmp.tab.c"
     break;
 
   case 15:
-#line 115 "aritimetica.y"
+#line 115 "cmp.y"
              {
         (yyval.no) = novo_syntaticno("const", 0);
         (yyval.no)->constvalue = (yyvsp[0].valor);
     }
-#line 1454 "aritimetica.tab.c"
+#line 1454 "cmp.tab.c"
     break;
 
   case 16:
-#line 119 "aritimetica.y"
+#line 119 "cmp.y"
             {
         simbolo *s = simbolo_existe((yyvsp[0].nome));
         if (!s)
@@ -1462,11 +1462,11 @@ yyreduce:
         (yyval.no)  = novo_syntaticno("IDENT", 0);
         (yyval.no)->sim = s;
     }
-#line 1466 "aritimetica.tab.c"
+#line 1466 "cmp.tab.c"
     break;
 
 
-#line 1470 "aritimetica.tab.c"
+#line 1470 "cmp.tab.c"
 
       default: break;
     }
@@ -1698,7 +1698,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 128 "aritimetica.y"
+#line 128 "cmp.y"
 
 
 int yywrap() {

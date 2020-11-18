@@ -1,6 +1,6 @@
 
 %{
-#include "aritimetica.tab.h"
+#include "cmp.tab.h"
 %}
 
 %%
