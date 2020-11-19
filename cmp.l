@@ -11,6 +11,9 @@
 "/"                 { return '/'; }
 "("                 { return '('; }
 ")"                 { return ')'; }
+"int"               { return TINT; }
+"float"             { return TFLOAT; }
+"return"            { return RETURN; }
 
 [0-9]+ { 
     yylval.valor = atoi(yytext);

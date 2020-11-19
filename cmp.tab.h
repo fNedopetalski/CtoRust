@@ -50,7 +50,10 @@ extern int yydebug;
   enum yytokentype
   {
     NUMBER = 258,
-    IDENT = 259
+    IDENT = 259,
+    TINT = 260,
+    TFLOAT = 261,
+    RETURN = 262
   };
 #endif
 
@@ -64,7 +67,7 @@ union YYSTYPE
     int valor;
     struct syntaticno *no;
 
-#line 68 "cmp.tab.h"
+#line 71 "cmp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

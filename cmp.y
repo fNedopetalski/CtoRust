@@ -39,11 +39,11 @@ void debug(syntaticno *root);
     struct syntaticno *no;
 }
 
-%token NUMBER IDENT
+%token NUMBER IDENT TINT TFLOAT RETURN
 
 %type <nome> IDENT
 %type <valor> NUMBER
-%type <no> prog arit expr term factor stmts stmt
+%type <no> prog arit expr term factor stmts stmt type args arg
 
 
 %start prog
@@ -69,12 +69,49 @@ stmts : stmt stmts {
     | stmt { $$ = $1; }
     ;
 
-stmt : IDENT '=' arit {
+stmt : type IDENT '=' arit ';' {
         char aux[20];
-        sprintf(aux, "%s=", $1);
+        sprintf(aux, "%s=", $2);
         $$ = novo_syntaticno(strdup(aux), 1);
-        $$->filhos[0] = $3;
+        $$->filhos[0] = $4;
     }
+    
+    // variável sozinha
+    | type IDENT ';' {
+        $$ = novo_syntaticno($2, 0);
+    }
+
+    | type IDENT '(' args ')' '{' stmts '}' {
+        $$ = novo_syntaticno("function", 2);
+        $$->filhos[0] = $4;
+        $$->filhos[1] = $7;
+    }
+
+    // #include <stdio.h>
+    | '#' IDENT '<' IDENT '.' IDENT '>' {
+        $$ = novo_syntaticno("include", 0);
+    }
+
+    | RETURN arit ';' {
+        $$ = novo_syntaticno("return", 1);
+        $$->filhos[0] = $2;
+    }
+    ;
+
+type : TINT         { $$ = novo_syntaticno("int", 0); }
+    | TFLOAT        { $$ = novo_syntaticno("float", 0); }
+    ;
+
+args : arg args {
+        $$ = novo_syntaticno("args", 2);
+        $$->filhos[0] = $1;
+        $$->filhos[1] = $2;
+    }
+
+    | arg { $$ = $1; }
+    ;
+
+arg : type IDENT
     ;
 
 arit : expr { $$ = $1; }
