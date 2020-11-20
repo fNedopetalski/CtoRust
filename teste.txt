@@ -8,6 +8,12 @@ int func(int v) {
     return v*2;
 }
 
+struct {
+    int a;
+    float b;
+    int c;
+} exemplo;
+
 int main() {
     b = 30;
     int c = (a + b) / b;

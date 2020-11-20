@@ -39,11 +39,12 @@ void debug(syntaticno *root);
     struct syntaticno *no;
 }
 
-%token NUMBER IDENT TINT TFLOAT RETURN
+%token NUMBER IDENT TINT TFLOAT RETURN STRUCT
 
 %type <nome> IDENT
 %type <valor> NUMBER
-%type <no> prog arit expr term factor stmts stmt type args arg
+%type <no> prog arit expr term factor stmts stmt type args arg fields 
+%type <no> field
 
 
 %start prog
@@ -80,7 +81,8 @@ stmt : type IDENT '=' arit ';' {
     | type IDENT ';' {
         $$ = novo_syntaticno($2, 0);
     }
-
+    
+    // int funcao (var) { stmts }
     | type IDENT '(' args ')' '{' stmts '}' {
         $$ = novo_syntaticno("function", 2);
         $$->filhos[0] = $4;
@@ -92,9 +94,31 @@ stmt : type IDENT '=' arit ';' {
         $$ = novo_syntaticno("include", 0);
     }
 
+    // return 1;
     | RETURN arit ';' {
         $$ = novo_syntaticno("return", 1);
         $$->filhos[0] = $2;
+    }
+
+    // struct { fields }
+    | STRUCT '{' fields '}' IDENT ';' {
+        $$ = novo_syntaticno("struct", 2);
+        $$->filhos[0] = novo_syntaticno($5, 0);
+        $$->filhos[1] = $3;
+    }
+    ;
+
+fields : field fields {
+        $$ = novo_syntaticno("fields", 2);
+        $$->filhos[1] = $2;
+        $$->filhos[0] = $1;
+    }
+    | field { $$ = $1; }
+    ;
+
+field : type IDENT ';' {
+        $$ = novo_syntaticno($2, 1);
+        $$->filhos[0] = $1;
     }
     ;
 

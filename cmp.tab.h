@@ -53,7 +53,8 @@ extern int yydebug;
     IDENT = 259,
     TINT = 260,
     TFLOAT = 261,
-    RETURN = 262
+    RETURN = 262,
+    STRUCT = 263
   };
 #endif
 
@@ -67,7 +68,7 @@ union YYSTYPE
     int valor;
     struct syntaticno *no;
 
-#line 71 "cmp.tab.h"
+#line 72 "cmp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

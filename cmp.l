@@ -14,6 +14,7 @@
 "int"               { return TINT; }
 "float"             { return TFLOAT; }
 "return"            { return RETURN; }
+"struct"            { return STRUCT; }
 
 [0-9]+ { 
     yylval.valor = atoi(yytext);
