@@ -13,9 +13,9 @@ struct {
     int c;
 } exemplo;
 
-int main() {
+int main(int argc) {
     b = 30;
     int c = (a + b) / b;
     c = c / (a * b);
-    printf("%d\n", c);
+    printf("%d", c);
 }

@@ -12,7 +12,7 @@ typedef struct {
     int token;
 } simbolo;
 
-typedef enum TIPONO {NO_ARIT};
+typedef enum TIPONO {NO_ARIT, NO_VAR};
 
 struct syntaticno {
     int id;
@@ -42,7 +42,7 @@ void debug(syntaticno *root);
     struct syntaticno *no;
 }
 
-%token NUMBER IDENT TINT TFLOAT RETURN STRUCT
+%token NUMBER IDENT TINT TFLOAT RETURN STRUCT PRINT INTD
 
 %type <nome> IDENT
 %type <valor> NUMBER
@@ -81,12 +81,17 @@ stmt : type IDENT '=' arit ';' {
         $$->filhos[1] = $4;
         $$->type = NO_ARIT;
     }
+
+    | IDENT '=' arit ';' {
+        $$ = novo_syntaticno($1, 1);
+        $$->filhos[0] = $3;
+    }
     
     // variável sozinha
     | type IDENT ';' {
         $$ = novo_syntaticno($2, 1);
         $$->filhos[0] = $1;
-
+        $$->type = NO_VAR;
     }
     
     // int funcao (var) { stmts }
@@ -114,6 +119,11 @@ stmt : type IDENT '=' arit ';' {
         $$ = novo_syntaticno("struct", 2);
         $$->filhos[0] = novo_syntaticno($5, 0);
         $$->filhos[1] = $3;
+    }
+
+    // printf()
+    | PRINT '(' '"' INTD '"' ',' IDENT ')' ';' {
+        $$ = novo_syntaticno("print", 0);
     }
     ;
 
@@ -259,8 +269,8 @@ void translate_arit(syntaticno *n) {
     // if(n->qtdfilhos == 2)
     //     translate_arit(n->filhos[1]);
 
-    if(n->type == NO_ARIT)
-        printf(" %d", n->constvalue);
+    
+    printf(" %d", n->constvalue);
 }
 
 void translate(syntaticno *n) {

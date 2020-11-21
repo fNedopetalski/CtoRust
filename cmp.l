@@ -15,6 +15,9 @@
 "float"             { return TFLOAT; }
 "return"            { return RETURN; }
 "struct"            { return STRUCT; }
+"printf"            { return PRINT; }
+"\%d"               { return INTD; }
+
 
 [0-9]+ { 
     yylval.valor = atoi(yytext);
