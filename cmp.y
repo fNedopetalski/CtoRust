@@ -12,8 +12,11 @@ typedef struct {
     int token;
 } simbolo;
 
+typedef enum TIPONO {NO_ARIT};
+
 struct syntaticno {
     int id;
+    enum TIPONO type;
     char *label;
     simbolo *sim;
     int constvalue;
@@ -62,7 +65,7 @@ prog : stmts         { if (errorc > 0)
                 }
     ;
 
-stmts : stmt stmts {
+stmts : stmts stmt {
         $$ = novo_syntaticno("stmts", 2);
         $$->filhos[0] = $1;
         $$->filhos[1] = $2;
@@ -73,25 +76,31 @@ stmts : stmt stmts {
 stmt : type IDENT '=' arit ';' {
         char aux[20];
         sprintf(aux, "%s=", $2);
-        $$ = novo_syntaticno(strdup(aux), 1);
-        $$->filhos[0] = $4;
+        $$ = novo_syntaticno(strdup(aux), 2);
+        $$->filhos[0] = $1;
+        $$->filhos[1] = $4;
+        $$->type = NO_ARIT;
     }
     
     // variável sozinha
     | type IDENT ';' {
-        $$ = novo_syntaticno($2, 0);
+        $$ = novo_syntaticno($2, 1);
+        $$->filhos[0] = $1;
+
     }
     
     // int funcao (var) { stmts }
     | type IDENT '(' args ')' '{' stmts '}' {
-        $$ = novo_syntaticno("function", 2);
-        $$->filhos[0] = $4;
-        $$->filhos[1] = $7;
+        $$ = novo_syntaticno("function", 3);
+        $$->filhos[0] = $1;
+        $$->filhos[1] = $4;
+        $$->filhos[2] = $7;
     }
 
     // #include <stdio.h>
     | '#' IDENT '<' IDENT '.' IDENT '>' {
-        $$ = novo_syntaticno("include", 0);
+        $$ = novo_syntaticno("include", 1);
+        $$->filhos[0] = novo_syntaticno($4, 0);
     }
 
     // return 1;
@@ -110,15 +119,16 @@ stmt : type IDENT '=' arit ';' {
 
 fields : field fields {
         $$ = novo_syntaticno("fields", 2);
-        $$->filhos[1] = $2;
         $$->filhos[0] = $1;
+        $$->filhos[1] = $2;
     }
     | field { $$ = $1; }
     ;
 
 field : type IDENT ';' {
-        $$ = novo_syntaticno($2, 1);
+        $$ = novo_syntaticno("field", 2);
         $$->filhos[0] = $1;
+        $$->filhos[1] = novo_syntaticno($2, 0);
     }
     ;
 
@@ -126,16 +136,24 @@ type : TINT         { $$ = novo_syntaticno("int", 0); }
     | TFLOAT        { $$ = novo_syntaticno("float", 0); }
     ;
 
-args : arg args {
+args : args arg {
         $$ = novo_syntaticno("args", 2);
         $$->filhos[0] = $1;
         $$->filhos[1] = $2;
     }
-
     | arg { $$ = $1; }
     ;
 
-arg : type IDENT
+arg : type IDENT {
+        $$ = novo_syntaticno("arg", 2);
+        $$->filhos[0] = $1;
+        $$->filhos[1] = novo_syntaticno($2, 0);
+    }
+    | type IDENT ',' {
+        $$ = novo_syntaticno("arg", 2);
+        $$->filhos[0] = $1;
+        $$->filhos[1] = novo_syntaticno($2, 0);
+    }
     ;
 
 arit : expr { $$ = $1; }
@@ -227,6 +245,40 @@ syntaticno *novo_syntaticno(char *label, int filhos) {
     return n;
 }
 
+void translate_arit(syntaticno *n) {
+    // if(n->qtdfilhos >= 1) 
+    //     translate_arit(n->filhos[0]);
+
+    // if (n->sim)
+    //     printf(" %s", n->sim->nome);
+    // else if (strcmp(n->label, "const") == 0)
+    //     printf(" %d", n->constvalue);
+    // else 
+    //     printf(" %s", n->label);
+
+    // if(n->qtdfilhos == 2)
+    //     translate_arit(n->filhos[1]);
+
+    if(n->type == NO_ARIT)
+        printf(" %d", n->constvalue);
+}
+
+void translate(syntaticno *n) {
+    
+    int l = strlen(n->label);
+    if (n->label[l-1] == '=') { //no de declaracao var
+        printf("%s", n->label);
+        translate_arit(n->filhos[1]);
+        printf("\n");
+    }
+    else{
+        for(int i = 0; i < n->qtdfilhos; i++)
+            translate(n->filhos[i]);
+    }
+
+}
+
+
 void print_tree(syntaticno *n){
 
     if (n->sim)
@@ -253,6 +305,8 @@ void debug(syntaticno *no) {
     printf("graph prog {\n");
     print_tree(no);
     printf("}\n");
+
+    translate(no);
 }
 
 int main() {

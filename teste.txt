@@ -1,16 +1,15 @@
 #include <stdio.h>
-#include <stdlib.h>
 
 int a = 10;
 int b;
 
-int func(int v) {
-    return v*2;
+int func(int v, int c) {
+    return v*c;
 }
 
 struct {
-    int a;
     float b;
+    int a;
     int c;
 } exemplo;
 
