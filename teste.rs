@@ -2,10 +2,10 @@ fn func(v: u32, c: u32) -> u32{
     return v*c
 }
 
-struct Exemplo<T> {
-    a : T,
-    b : T,
-    c : T,
+struct Exemplo {
+    bb: f32,
+    aa: u32,
+    cc: u32,
 }
 
 fn main (){

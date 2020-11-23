@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 int yyerror(const char *s);
 int yylex(void);
 int errorc = 0;
@@ -12,7 +13,8 @@ typedef struct {
     int token;
 } simbolo;
 
-typedef enum TIPONO {NO_ARIT, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN}tipo;
+typedef enum TIPONO {NO_ARIT, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN,
+    NO_STRUCT}tipo;
 
 struct syntaticno {
     int id;
@@ -122,6 +124,7 @@ stmt : type IDENT '=' arit ';' {
         $$ = novo_syntaticno("struct", 2);
         $$->filhos[0] = novo_syntaticno($5, 0);
         $$->filhos[1] = $3;
+        $$->type = NO_STRUCT;
     }
 
     // printf()
@@ -325,12 +328,48 @@ void translate_include(syntaticno *n) {
         printf("std::io;\n");
 }
 
-void translate_arit(syntaticno *n) {
+void translate_const(syntaticno *n) {
     printf(" %d;\n", n->constvalue);
 }
 
+void translate_arit(syntaticno *n) {
+    if (n->label == "+" || n->label == "-" || n->label == "/" || n->label == "*") {
+        translate_arit(n->filhos[0]);
+        printf("%s",n->label);
+        translate_arit(n->filhos[1]);
+    }
+    else {
+        printf("%s", n->sim->nome);
+    }
+}
+
 void translate_func(syntaticno *n) {
-    printf("return");
+    if (n->type == NO_RETURN) {
+        printf("\treturn ");
+        translate_arit(n->filhos[0]);
+    }
+    else {
+        printf("%s" ,n->label);
+    }
+}
+
+void translate_struct_name(syntaticno *n) {
+    printf("%c%s {\n", toupper(n->label[0]), n->label+1);
+}
+
+void translate_struct(syntaticno *n) {
+    if(strcmp(n->label, "fields") == 0){
+        translate_struct(n->filhos[0]);
+        translate_struct(n->filhos[1]);
+    }
+    else if(strcmp(n->label, "field") == 0) {
+        translate_struct(n->filhos[1]);
+        translate_type(n->filhos[0]);
+        printf(",\n");
+    }
+    else {
+        printf("\t%s: ", n->label);
+    }
 }
 
 void translate(syntaticno *n) {
@@ -339,7 +378,7 @@ void translate(syntaticno *n) {
         printf("let %s: ", n->label);
         translate_type(n->filhos[0]);
         printf(" = ");
-        translate_arit(n->filhos[1]);
+        translate_const(n->filhos[1]);
         printf("\n");
     }
     else if (n->type == NO_INCLUDE) {
@@ -349,9 +388,9 @@ void translate(syntaticno *n) {
     } 
     else if (n->type == NO_FUNCAO) {
         if (strcmp(n->label, "main") == 0) {
-            printf("fn main () {\n");  
+            printf("fn main() {\n");  
             // translate(n->filhos[3]);
-            printf("\n}\n");
+            printf("\n}\n\n");
         }
         else {
             printf("fn %s (", n->label);
@@ -360,9 +399,15 @@ void translate(syntaticno *n) {
             translate_type(n->filhos[0]);
             printf("{\n");
             
-            translate_func(n->filhos[3]);
-            printf("\n}\n");
+            translate_func(n->filhos[2]);
+            printf("\n}\n\n");
         }
+    }
+    else if(n->type == NO_STRUCT) {
+        printf("%s ",n->label);
+        translate_struct_name(n->filhos[0]);
+        translate_struct(n->filhos[1]);
+        printf("}\n");
     }
     else{
         for(int i = 0; i < n->qtdfilhos; i++)
