@@ -17,5 +17,9 @@ int main(int argc) {
     b = 30;
     int c = (a + b) / b;
     c = c / (a * b);
-    printf("%d", c);
+    if (c > 0) {
+        while (c > 0) {
+            c = c+1;
+        }
+    }
 }

@@ -11,12 +11,17 @@
 "/"                 { return '/'; }
 "("                 { return '('; }
 ")"                 { return ')'; }
+">"                 { return '>'; }
+"<"                 { return '<'; }
+">="                { return GEQUAL; }
+"<="                { return LEQUAL; }
 "int"               { return TINT; }
 "float"             { return TFLOAT; }
 "return"            { return RETURN; }
 "struct"            { return STRUCT; }
 "printf"            { return PRINT; }
-"\%d"               { return INTD; }
+"if"                { return IF; }
+"while"             { return WHILE; }
 
 
 [0-9]+ { 

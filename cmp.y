@@ -42,12 +42,12 @@ void debug(syntaticno *root);
     struct syntaticno *no;
 }
 
-%token NUMBER IDENT TINT TFLOAT RETURN STRUCT PRINT INTD
+%token NUMBER IDENT TINT TFLOAT RETURN STRUCT PRINT IF GEQUAL LEQUAL WHILE
 
 %type <nome> IDENT
 %type <valor> NUMBER
 %type <no> prog arit expr term factor stmts stmt type args arg fields 
-%type <no> field
+%type <no> field cond
 
 
 %start prog
@@ -96,7 +96,7 @@ stmt : type IDENT '=' arit ';' {
     
     // int funcao (var) { stmts }
     | type IDENT '(' args ')' '{' stmts '}' {
-        $$ = novo_syntaticno("function", 3);
+        $$ = novo_syntaticno($2, 3);
         $$->filhos[0] = $1;
         $$->filhos[1] = $4;
         $$->filhos[2] = $7;
@@ -122,8 +122,21 @@ stmt : type IDENT '=' arit ';' {
     }
 
     // printf()
-    | PRINT '(' '"' INTD '"' ',' IDENT ')' ';' {
-        $$ = novo_syntaticno("print", 0);
+    // | PRINT '(' '"' TYPE_IDENT '"' ',' IDENT ')' ';' {
+    //     $$ = novo_syntaticno("print", 0);
+    // }
+
+    // if( arit ) { stmts }
+    | IF '(' cond ')' '{' stmts '}'{
+        $$ = novo_syntaticno("if", 2);
+        $$->filhos[0] = $3;
+        $$->filhos[1] = $6;
+    }
+
+    | WHILE '(' cond ')' '{' stmts '}' {
+        $$ = novo_syntaticno("while", 2);
+        $$->filhos[0] = $3;
+        $$->filhos[1] = $6;
     }
     ;
 
@@ -163,6 +176,32 @@ arg : type IDENT {
         $$ = novo_syntaticno("arg", 2);
         $$->filhos[0] = $1;
         $$->filhos[1] = novo_syntaticno($2, 0);
+    }
+    ;
+
+
+cond : IDENT '>' arit {
+        $$ = novo_syntaticno(">", 2);
+        $$->filhos[0] = novo_syntaticno($1, 0);
+        $$->filhos[1] = $3;
+    }
+
+    | IDENT '<' arit {
+        $$ = novo_syntaticno("<", 2);
+        $$->filhos[0] = novo_syntaticno($1, 0);
+        $$->filhos[1] = $3;
+    }
+
+    | IDENT GEQUAL arit {
+        $$ = novo_syntaticno(">=", 2);
+        $$->filhos[0] = novo_syntaticno($1, 0);
+        $$->filhos[1] = $3;
+    }
+
+    | IDENT LEQUAL arit {
+        $$ = novo_syntaticno("<=", 2);
+        $$->filhos[0] = novo_syntaticno($1, 0);
+        $$->filhos[1] = $3;
     }
     ;
 

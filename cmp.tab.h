@@ -56,7 +56,10 @@ extern int yydebug;
     RETURN = 262,
     STRUCT = 263,
     PRINT = 264,
-    INTD = 265
+    IF = 265,
+    GEQUAL = 266,
+    LEQUAL = 267,
+    WHILE = 268
   };
 #endif
 
@@ -70,7 +73,7 @@ union YYSTYPE
     int valor;
     struct syntaticno *no;
 
-#line 74 "cmp.tab.h"
+#line 77 "cmp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
