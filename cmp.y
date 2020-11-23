@@ -12,11 +12,11 @@ typedef struct {
     int token;
 } simbolo;
 
-typedef enum TIPONO {NO_ARIT, NO_VAR};
+typedef enum TIPONO {NO_ARIT, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN}tipo;
 
 struct syntaticno {
     int id;
-    enum TIPONO type;
+    tipo type;
     char *label;
     simbolo *sim;
     int constvalue;
@@ -75,15 +75,16 @@ stmts : stmts stmt {
 
 stmt : type IDENT '=' arit ';' {
         char aux[20];
-        sprintf(aux, "%s=", $2);
+        sprintf(aux, "%s", $2);
         $$ = novo_syntaticno(strdup(aux), 2);
+        $$->type = NO_VAR;
         $$->filhos[0] = $1;
         $$->filhos[1] = $4;
-        $$->type = NO_ARIT;
     }
 
     | IDENT '=' arit ';' {
         $$ = novo_syntaticno($1, 1);
+        $$->type = NO_VAR;
         $$->filhos[0] = $3;
     }
     
@@ -91,7 +92,6 @@ stmt : type IDENT '=' arit ';' {
     | type IDENT ';' {
         $$ = novo_syntaticno($2, 1);
         $$->filhos[0] = $1;
-        $$->type = NO_VAR;
     }
     
     // int funcao (var) { stmts }
@@ -100,17 +100,20 @@ stmt : type IDENT '=' arit ';' {
         $$->filhos[0] = $1;
         $$->filhos[1] = $4;
         $$->filhos[2] = $7;
+        $$->type = NO_FUNCAO;
     }
 
     // #include <stdio.h>
     | '#' IDENT '<' IDENT '.' IDENT '>' {
         $$ = novo_syntaticno("include", 1);
         $$->filhos[0] = novo_syntaticno($4, 0);
+        $$->type = NO_INCLUDE;
     }
 
     // return 1;
     | RETURN arit ';' {
         $$ = novo_syntaticno("return", 1);
+        $$->type = NO_RETURN;
         $$->filhos[0] = $2;
     }
 
@@ -133,6 +136,7 @@ stmt : type IDENT '=' arit ';' {
         $$->filhos[1] = $6;
     }
 
+    // while ( cond ) { stmts }
     | WHILE '(' cond ')' '{' stmts '}' {
         $$ = novo_syntaticno("while", 2);
         $$->filhos[0] = $3;
@@ -294,31 +298,71 @@ syntaticno *novo_syntaticno(char *label, int filhos) {
     return n;
 }
 
+
+void translate_type (syntaticno *n){
+    if (n->label == "int")
+        printf("u32 ");
+    else if (n->label == "float")
+        printf("f32 ");
+}
+
+void translate_args(syntaticno *n){
+    if(strcmp(n->label, "args") == 0){
+        translate_args(n->filhos[0]);
+        translate_args(n->filhos[1]);
+    }
+    else if(strcmp(n->label, "arg") == 0) {
+        translate_args(n->filhos[1]);
+        translate_type(n->filhos[0]);
+    }
+    else {
+        printf("%s: ", n->label);
+    }
+}
+
+void translate_include(syntaticno *n) {
+    if (strcmp(n->label, "stdio") == 0)
+        printf("std::io;\n");
+}
+
 void translate_arit(syntaticno *n) {
-    // if(n->qtdfilhos >= 1) 
-    //     translate_arit(n->filhos[0]);
+    printf(" %d;\n", n->constvalue);
+}
 
-    // if (n->sim)
-    //     printf(" %s", n->sim->nome);
-    // else if (strcmp(n->label, "const") == 0)
-    //     printf(" %d", n->constvalue);
-    // else 
-    //     printf(" %s", n->label);
-
-    // if(n->qtdfilhos == 2)
-    //     translate_arit(n->filhos[1]);
-
-    
-    printf(" %d", n->constvalue);
+void translate_func(syntaticno *n) {
+    printf("return");
 }
 
 void translate(syntaticno *n) {
     
-    int l = strlen(n->label);
-    if (n->label[l-1] == '=') { //no de declaracao var
-        printf("%s", n->label);
+    if (n->type == NO_VAR){
+        printf("let %s: ", n->label);
+        translate_type(n->filhos[0]);
+        printf(" = ");
         translate_arit(n->filhos[1]);
         printf("\n");
+    }
+    else if (n->type == NO_INCLUDE) {
+        printf("use ");
+        translate_include(n->filhos[0]);
+        printf("\n");
+    } 
+    else if (n->type == NO_FUNCAO) {
+        if (strcmp(n->label, "main") == 0) {
+            printf("fn main () {\n");  
+            // translate(n->filhos[3]);
+            printf("\n}\n");
+        }
+        else {
+            printf("fn %s (", n->label);
+            translate_args(n->filhos[1]);
+            printf(") -> ");
+            translate_type(n->filhos[0]);
+            printf("{\n");
+            
+            translate_func(n->filhos[3]);
+            printf("\n}\n");
+        }
     }
     else{
         for(int i = 0; i < n->qtdfilhos; i++)

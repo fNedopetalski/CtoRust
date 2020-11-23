@@ -13,6 +13,7 @@
 ")"                 { return ')'; }
 ">"                 { return '>'; }
 "<"                 { return '<'; }
+"="                 { return '='; }
 ">="                { return GEQUAL; }
 "<="                { return LEQUAL; }
 "int"               { return TINT; }

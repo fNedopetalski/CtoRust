@@ -81,11 +81,11 @@ typedef struct {
     int token;
 } simbolo;
 
-typedef enum TIPONO {NO_ARIT, NO_VAR};
+typedef enum TIPONO {NO_ARIT, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN}tipo;
 
 struct syntaticno {
     int id;
-    enum TIPONO type;
+    tipo type;
     char *label;
     simbolo *sim;
     int constvalue;
@@ -549,10 +549,10 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    57,    57,    68,    73,    76,    85,    91,    98,   106,
-     112,   118,   130,   136,   143,   148,   151,   158,   159,   162,
-     167,   170,   175,   183,   189,   195,   201,   208,   209,   212,
-     217,   222,   225,   230,   235,   238,   243,   247
+       0,    57,    57,    68,    73,    76,    85,    92,    98,   107,
+     114,   121,   133,   140,   147,   152,   155,   162,   163,   166,
+     171,   174,   179,   187,   193,   199,   205,   212,   213,   216,
+     221,   226,   229,   234,   239,   242,   247,   251
 };
 #endif
 
@@ -1429,11 +1429,11 @@ yyreduce:
 #line 76 "cmp.y"
                                {
         char aux[20];
-        sprintf(aux, "%s=", (yyvsp[-3].nome));
+        sprintf(aux, "%s", (yyvsp[-3].nome));
         (yyval.no) = novo_syntaticno(strdup(aux), 2);
+        (yyval.no)->type = NO_VAR;
         (yyval.no)->filhos[0] = (yyvsp[-4].no);
         (yyval.no)->filhos[1] = (yyvsp[-1].no);
-        (yyval.no)->type = NO_ARIT;
     }
 #line 1439 "cmp.tab.c"
     break;
@@ -1442,17 +1442,17 @@ yyreduce:
 #line 85 "cmp.y"
                          {
         (yyval.no) = novo_syntaticno((yyvsp[-3].nome), 1);
+        (yyval.no)->type = NO_VAR;
         (yyval.no)->filhos[0] = (yyvsp[-1].no);
     }
-#line 1448 "cmp.tab.c"
+#line 1449 "cmp.tab.c"
     break;
 
   case 7:
-#line 91 "cmp.y"
+#line 92 "cmp.y"
                      {
         (yyval.no) = novo_syntaticno((yyvsp[-1].nome), 1);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
-        (yyval.no)->type = NO_VAR;
     }
 #line 1458 "cmp.tab.c"
     break;
@@ -1464,251 +1464,254 @@ yyreduce:
         (yyval.no)->filhos[0] = (yyvsp[-7].no);
         (yyval.no)->filhos[1] = (yyvsp[-4].no);
         (yyval.no)->filhos[2] = (yyvsp[-1].no);
+        (yyval.no)->type = NO_FUNCAO;
     }
-#line 1469 "cmp.tab.c"
+#line 1470 "cmp.tab.c"
     break;
 
   case 9:
-#line 106 "cmp.y"
+#line 107 "cmp.y"
                                         {
         (yyval.no) = novo_syntaticno("include", 1);
         (yyval.no)->filhos[0] = novo_syntaticno((yyvsp[-3].nome), 0);
+        (yyval.no)->type = NO_INCLUDE;
     }
-#line 1478 "cmp.tab.c"
+#line 1480 "cmp.tab.c"
     break;
 
   case 10:
-#line 112 "cmp.y"
+#line 114 "cmp.y"
                       {
         (yyval.no) = novo_syntaticno("return", 1);
+        (yyval.no)->type = NO_RETURN;
         (yyval.no)->filhos[0] = (yyvsp[-1].no);
     }
-#line 1487 "cmp.tab.c"
+#line 1490 "cmp.tab.c"
     break;
 
   case 11:
-#line 118 "cmp.y"
+#line 121 "cmp.y"
                                       {
         (yyval.no) = novo_syntaticno("struct", 2);
         (yyval.no)->filhos[0] = novo_syntaticno((yyvsp[-1].nome), 0);
         (yyval.no)->filhos[1] = (yyvsp[-3].no);
     }
-#line 1497 "cmp.tab.c"
+#line 1500 "cmp.tab.c"
     break;
 
   case 12:
-#line 130 "cmp.y"
+#line 133 "cmp.y"
                                    {
         (yyval.no) = novo_syntaticno("if", 2);
         (yyval.no)->filhos[0] = (yyvsp[-4].no);
         (yyval.no)->filhos[1] = (yyvsp[-1].no);
     }
-#line 1507 "cmp.tab.c"
+#line 1510 "cmp.tab.c"
     break;
 
   case 13:
-#line 136 "cmp.y"
+#line 140 "cmp.y"
                                        {
         (yyval.no) = novo_syntaticno("while", 2);
         (yyval.no)->filhos[0] = (yyvsp[-4].no);
         (yyval.no)->filhos[1] = (yyvsp[-1].no);
     }
-#line 1517 "cmp.tab.c"
+#line 1520 "cmp.tab.c"
     break;
 
   case 14:
-#line 143 "cmp.y"
+#line 147 "cmp.y"
                       {
         (yyval.no) = novo_syntaticno("fields", 2);
         (yyval.no)->filhos[0] = (yyvsp[-1].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1527 "cmp.tab.c"
+#line 1530 "cmp.tab.c"
     break;
 
   case 15:
-#line 148 "cmp.y"
+#line 152 "cmp.y"
             { (yyval.no) = (yyvsp[0].no); }
-#line 1533 "cmp.tab.c"
+#line 1536 "cmp.tab.c"
     break;
 
   case 16:
-#line 151 "cmp.y"
+#line 155 "cmp.y"
                        {
         (yyval.no) = novo_syntaticno("field", 2);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
         (yyval.no)->filhos[1] = novo_syntaticno((yyvsp[-1].nome), 0);
     }
-#line 1543 "cmp.tab.c"
+#line 1546 "cmp.tab.c"
     break;
 
   case 17:
-#line 158 "cmp.y"
+#line 162 "cmp.y"
                     { (yyval.no) = novo_syntaticno("int", 0); }
-#line 1549 "cmp.tab.c"
+#line 1552 "cmp.tab.c"
     break;
 
   case 18:
-#line 159 "cmp.y"
+#line 163 "cmp.y"
                     { (yyval.no) = novo_syntaticno("float", 0); }
-#line 1555 "cmp.tab.c"
+#line 1558 "cmp.tab.c"
     break;
 
   case 19:
-#line 162 "cmp.y"
+#line 166 "cmp.y"
                 {
         (yyval.no) = novo_syntaticno("args", 2);
         (yyval.no)->filhos[0] = (yyvsp[-1].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1565 "cmp.tab.c"
+#line 1568 "cmp.tab.c"
     break;
 
   case 20:
-#line 167 "cmp.y"
+#line 171 "cmp.y"
           { (yyval.no) = (yyvsp[0].no); }
-#line 1571 "cmp.tab.c"
+#line 1574 "cmp.tab.c"
     break;
 
   case 21:
-#line 170 "cmp.y"
+#line 174 "cmp.y"
                  {
         (yyval.no) = novo_syntaticno("arg", 2);
         (yyval.no)->filhos[0] = (yyvsp[-1].no);
         (yyval.no)->filhos[1] = novo_syntaticno((yyvsp[0].nome), 0);
     }
-#line 1581 "cmp.tab.c"
+#line 1584 "cmp.tab.c"
     break;
 
   case 22:
-#line 175 "cmp.y"
+#line 179 "cmp.y"
                      {
         (yyval.no) = novo_syntaticno("arg", 2);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
         (yyval.no)->filhos[1] = novo_syntaticno((yyvsp[-1].nome), 0);
     }
-#line 1591 "cmp.tab.c"
+#line 1594 "cmp.tab.c"
     break;
 
   case 23:
-#line 183 "cmp.y"
+#line 187 "cmp.y"
                       {
         (yyval.no) = novo_syntaticno(">", 2);
         (yyval.no)->filhos[0] = novo_syntaticno((yyvsp[-2].nome), 0);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1601 "cmp.tab.c"
+#line 1604 "cmp.tab.c"
     break;
 
   case 24:
-#line 189 "cmp.y"
+#line 193 "cmp.y"
                      {
         (yyval.no) = novo_syntaticno("<", 2);
         (yyval.no)->filhos[0] = novo_syntaticno((yyvsp[-2].nome), 0);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1611 "cmp.tab.c"
+#line 1614 "cmp.tab.c"
     break;
 
   case 25:
-#line 195 "cmp.y"
+#line 199 "cmp.y"
                         {
         (yyval.no) = novo_syntaticno(">=", 2);
         (yyval.no)->filhos[0] = novo_syntaticno((yyvsp[-2].nome), 0);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1621 "cmp.tab.c"
+#line 1624 "cmp.tab.c"
     break;
 
   case 26:
-#line 201 "cmp.y"
+#line 205 "cmp.y"
                         {
         (yyval.no) = novo_syntaticno("<=", 2);
         (yyval.no)->filhos[0] = novo_syntaticno((yyvsp[-2].nome), 0);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1631 "cmp.tab.c"
+#line 1634 "cmp.tab.c"
     break;
 
   case 27:
-#line 208 "cmp.y"
+#line 212 "cmp.y"
             { (yyval.no) = (yyvsp[0].no); }
-#line 1637 "cmp.tab.c"
+#line 1640 "cmp.tab.c"
     break;
 
   case 29:
-#line 212 "cmp.y"
+#line 216 "cmp.y"
                      {
         (yyval.no) = novo_syntaticno("+", 2);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1647 "cmp.tab.c"
+#line 1650 "cmp.tab.c"
     break;
 
   case 30:
-#line 217 "cmp.y"
+#line 221 "cmp.y"
                     {
         (yyval.no) = novo_syntaticno("-", 2);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1657 "cmp.tab.c"
+#line 1660 "cmp.tab.c"
     break;
 
   case 31:
-#line 222 "cmp.y"
+#line 226 "cmp.y"
            { (yyval.no) = (yyvsp[0].no); }
-#line 1663 "cmp.tab.c"
+#line 1666 "cmp.tab.c"
     break;
 
   case 32:
-#line 225 "cmp.y"
+#line 229 "cmp.y"
                        {
         (yyval.no) = novo_syntaticno("*", 2);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
 }
-#line 1673 "cmp.tab.c"
+#line 1676 "cmp.tab.c"
     break;
 
   case 33:
-#line 230 "cmp.y"
+#line 234 "cmp.y"
                       {
         (yyval.no) = novo_syntaticno("/", 2);
         (yyval.no)->filhos[0] = (yyvsp[-2].no);
         (yyval.no)->filhos[1] = (yyvsp[0].no);
     }
-#line 1683 "cmp.tab.c"
+#line 1686 "cmp.tab.c"
     break;
 
   case 34:
-#line 235 "cmp.y"
+#line 239 "cmp.y"
                     { (yyval.no) = (yyvsp[0].no); }
-#line 1689 "cmp.tab.c"
+#line 1692 "cmp.tab.c"
     break;
 
   case 35:
-#line 238 "cmp.y"
+#line 242 "cmp.y"
                       {
         /*$$ = novo_syntaticno("()", 1);
         $$->filhos[0] = $2;*/
         (yyval.no) = (yyvsp[-1].no);
 }
-#line 1699 "cmp.tab.c"
+#line 1702 "cmp.tab.c"
     break;
 
   case 36:
-#line 243 "cmp.y"
+#line 247 "cmp.y"
              {
         (yyval.no) = novo_syntaticno("const", 0);
         (yyval.no)->constvalue = (yyvsp[0].valor);
     }
-#line 1708 "cmp.tab.c"
+#line 1711 "cmp.tab.c"
     break;
 
   case 37:
-#line 247 "cmp.y"
+#line 251 "cmp.y"
             {
         simbolo *s = simbolo_existe((yyvsp[0].nome));
         if (!s)
@@ -1716,11 +1719,11 @@ yyreduce:
         (yyval.no)  = novo_syntaticno("IDENT", 0);
         (yyval.no)->sim = s;
     }
-#line 1720 "cmp.tab.c"
+#line 1723 "cmp.tab.c"
     break;
 
 
-#line 1724 "cmp.tab.c"
+#line 1727 "cmp.tab.c"
 
       default: break;
     }
@@ -1952,7 +1955,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 256 "cmp.y"
+#line 260 "cmp.y"
 
 
 int yywrap() {
@@ -1994,31 +1997,71 @@ syntaticno *novo_syntaticno(char *label, int filhos) {
     return n;
 }
 
+
+void translate_type (syntaticno *n){
+    if (n->label == "int")
+        printf("u32 ");
+    else if (n->label == "float")
+        printf("f32 ");
+}
+
+void translate_args(syntaticno *n){
+    if(strcmp(n->label, "args") == 0){
+        translate_args(n->filhos[0]);
+        translate_args(n->filhos[1]);
+    }
+    else if(strcmp(n->label, "arg") == 0) {
+        translate_args(n->filhos[1]);
+        translate_type(n->filhos[0]);
+    }
+    else {
+        printf("%s: ", n->label);
+    }
+}
+
+void translate_include(syntaticno *n) {
+    if (strcmp(n->label, "stdio") == 0)
+        printf("std::io;\n");
+}
+
 void translate_arit(syntaticno *n) {
-    // if(n->qtdfilhos >= 1) 
-    //     translate_arit(n->filhos[0]);
+    printf(" %d;\n", n->constvalue);
+}
 
-    // if (n->sim)
-    //     printf(" %s", n->sim->nome);
-    // else if (strcmp(n->label, "const") == 0)
-    //     printf(" %d", n->constvalue);
-    // else 
-    //     printf(" %s", n->label);
-
-    // if(n->qtdfilhos == 2)
-    //     translate_arit(n->filhos[1]);
-
-    
-    printf(" %d", n->constvalue);
+void translate_func(syntaticno *n) {
+    printf("return");
 }
 
 void translate(syntaticno *n) {
     
-    int l = strlen(n->label);
-    if (n->label[l-1] == '=') { //no de declaracao var
-        printf("%s", n->label);
+    if (n->type == NO_VAR){
+        printf("let %s: ", n->label);
+        translate_type(n->filhos[0]);
+        printf(" = ");
         translate_arit(n->filhos[1]);
         printf("\n");
+    }
+    else if (n->type == NO_INCLUDE) {
+        printf("use ");
+        translate_include(n->filhos[0]);
+        printf("\n");
+    } 
+    else if (n->type == NO_FUNCAO) {
+        if (strcmp(n->label, "main") == 0) {
+            printf("fn main () {\n");  
+            // translate(n->filhos[3]);
+            printf("\n}\n");
+        }
+        else {
+            printf("fn %s (", n->label);
+            translate_args(n->filhos[1]);
+            printf(") -> ");
+            translate_type(n->filhos[0]);
+            printf("{\n");
+            
+            translate_func(n->filhos[3]);
+            printf("\n}\n");
+        }
     }
     else{
         for(int i = 0; i < n->qtdfilhos; i++)

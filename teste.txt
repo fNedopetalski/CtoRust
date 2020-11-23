@@ -1,25 +1,23 @@
 #include <stdio.h>
 
-int a = 10;
-int b;
-
 int func(int v, int c) {
     return v*c;
 }
 
 struct {
-    float b;
-    int a;
-    int c;
+    float bb;
+    int aa;
+    int cc;
 } exemplo;
 
 int main(int argc) {
-    b = 30;
+    int a = 10;
+    int b = 30;
     int c = (a + b) / b;
     c = c / (a * b);
     if (c > 0) {
-        while (c > 0) {
-            c = c+1;
+        while (c <= 20) {
+            c = c+1; 
         }
     }
 }

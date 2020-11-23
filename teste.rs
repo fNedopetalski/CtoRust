@@ -1,21 +1,21 @@
-static A: i64 = 10;
-static mut B: i64 = 0;
-
-fn func(v: i64) -> i64{
-    v*2
+fn func(v: u32, c: u32) -> u32{
+    return v*c
 }
 
-struct exemplo<T> {
-    i64 a : T;
-    f64 b : T;
-    i64 c : T;
+struct Exemplo<T> {
+    a : T,
+    b : T,
+    c : T,
 }
 
-fn main() {
-    unsafe{
-        B = 30;
-        let mut c = (A + B) / B;
-        c = c / (A * B);
-        println!("{}", c);
+fn main (){
+    let a: u32 = 10;
+    let b: u32 = 30;
+    let mut c = (a + b) / b;
+    c = c / (a * b);
+    if c > 0 { 
+        while c <= 20 { 
+            c += 1;
+        }
     }
 }
