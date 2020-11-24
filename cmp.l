@@ -18,6 +18,8 @@
 "<="                { return LEQUAL; }
 "=="                { return EQUAL; }
 "!="                { return DIFF; }
+"&&"                { return AND; }
+"||"                { return OR; }
 "int"               { return TINT; }
 "float"             { return TFLOAT; }
 "return"            { return RETURN; }

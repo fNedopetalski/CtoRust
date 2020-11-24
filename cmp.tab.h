@@ -61,7 +61,9 @@ extern int yydebug;
     LEQUAL = 267,
     WHILE = 268,
     EQUAL = 269,
-    DIFF = 270
+    DIFF = 270,
+    AND = 271,
+    OR = 272
   };
 #endif
 
@@ -69,13 +71,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 41 "cmp.y"
+#line 42 "cmp.y"
 
     char *nome;
     int valor;
     struct syntaticno *no;
 
-#line 79 "cmp.tab.h"
+#line 81 "cmp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
