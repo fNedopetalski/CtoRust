@@ -13,8 +13,8 @@ typedef struct {
     int token;
 } simbolo;
 
-typedef enum TIPONO {NO_ARIT, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN,
-    NO_STRUCT}tipo;
+typedef enum TIPONO {NO_INVALIDO, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN,
+    NO_STRUCT, NO_RECEBE}tipo;
 
 struct syntaticno {
     int id;
@@ -84,9 +84,10 @@ stmt : type IDENT '=' arit ';' {
         $$->filhos[1] = $4;
     }
 
+    // c = a * b / d;
     | IDENT '=' arit ';' {
         $$ = novo_syntaticno($1, 1);
-        $$->type = NO_VAR;
+        $$->type = NO_RECEBE;
         $$->filhos[0] = $3;
     }
     
@@ -328,19 +329,24 @@ void translate_include(syntaticno *n) {
         printf("std::io;\n");
 }
 
-void translate_const(syntaticno *n) {
-    printf(" %d;\n", n->constvalue);
-}
-
 void translate_arit(syntaticno *n) {
     if (n->label == "+" || n->label == "-" || n->label == "/" || n->label == "*") {
         translate_arit(n->filhos[0]);
-        printf("%s",n->label);
+        printf(" %s ",n->label);
         translate_arit(n->filhos[1]);
     }
-    else {
+    else if(n->sim->nome){
         printf("%s", n->sim->nome);
     }
+    else 
+        printf("%s", n->label);
+}
+
+void translate_const(syntaticno *n) {
+    if(n->constvalue)
+        printf(" %d;\n", n->constvalue);
+    else
+        translate_arit(n);
 }
 
 void translate_func(syntaticno *n) {
@@ -381,6 +387,11 @@ void translate(syntaticno *n) {
         translate_const(n->filhos[1]);
         printf("\n");
     }
+    else if(n->type == NO_RECEBE) {
+        printf("%s = ", n->label);
+        translate_arit(n->filhos[0]);
+        printf(";\n");
+    }
     else if (n->type == NO_INCLUDE) {
         printf("use ");
         translate_include(n->filhos[0]);
@@ -389,7 +400,7 @@ void translate(syntaticno *n) {
     else if (n->type == NO_FUNCAO) {
         if (strcmp(n->label, "main") == 0) {
             printf("fn main() {\n");  
-            // translate(n->filhos[3]);
+            translate(n->filhos[2]);
             printf("\n}\n\n");
         }
         else {
@@ -407,7 +418,7 @@ void translate(syntaticno *n) {
         printf("%s ",n->label);
         translate_struct_name(n->filhos[0]);
         translate_struct(n->filhos[1]);
-        printf("}\n");
+        printf("}\n\n");
     }
     else{
         for(int i = 0; i < n->qtdfilhos; i++)
