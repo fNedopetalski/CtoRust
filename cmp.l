@@ -16,6 +16,8 @@
 "="                 { return '='; }
 ">="                { return GEQUAL; }
 "<="                { return LEQUAL; }
+"=="                { return EQUAL; }
+"!="                { return DIFF; }
 "int"               { return TINT; }
 "float"             { return TFLOAT; }
 "return"            { return RETURN; }

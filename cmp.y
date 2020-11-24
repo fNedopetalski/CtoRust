@@ -14,7 +14,7 @@ typedef struct {
 } simbolo;
 
 typedef enum TIPONO {NO_INVALIDO, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN,
-    NO_STRUCT, NO_RECEBE}tipo;
+    NO_STRUCT, NO_RECEBE, NO_IF, NO_WHILE}tipo;
 
 struct syntaticno {
     int id;
@@ -45,6 +45,7 @@ void debug(syntaticno *root);
 }
 
 %token NUMBER IDENT TINT TFLOAT RETURN STRUCT PRINT IF GEQUAL LEQUAL WHILE
+%token EQUAL DIFF
 
 %type <nome> IDENT
 %type <valor> NUMBER
@@ -138,6 +139,7 @@ stmt : type IDENT '=' arit ';' {
         $$ = novo_syntaticno("if", 2);
         $$->filhos[0] = $3;
         $$->filhos[1] = $6;
+        $$->type = NO_IF;
     }
 
     // while ( cond ) { stmts }
@@ -145,6 +147,7 @@ stmt : type IDENT '=' arit ';' {
         $$ = novo_syntaticno("while", 2);
         $$->filhos[0] = $3;
         $$->filhos[1] = $6;
+        $$->type = NO_WHILE;
     }
     ;
 
@@ -194,26 +197,46 @@ cond : IDENT '>' arit {
         $$->filhos[1] = $3;
     }
 
+    // a < 30*21
     | IDENT '<' arit {
         $$ = novo_syntaticno("<", 2);
         $$->filhos[0] = novo_syntaticno($1, 0);
         $$->filhos[1] = $3;
     }
 
+    // a >= 30*21
     | IDENT GEQUAL arit {
         $$ = novo_syntaticno(">=", 2);
         $$->filhos[0] = novo_syntaticno($1, 0);
         $$->filhos[1] = $3;
     }
 
+    // a <= 30*21
     | IDENT LEQUAL arit {
         $$ = novo_syntaticno("<=", 2);
         $$->filhos[0] = novo_syntaticno($1, 0);
         $$->filhos[1] = $3;
     }
+
+    // a == 30*21
+    | IDENT EQUAL arit {
+        $$ = novo_syntaticno("==", 2);
+        $$->filhos[0] = novo_syntaticno($1, 0);
+        $$->filhos[1] = $3;
+    }
+
+    // a != 30*21
+    | IDENT DIFF arit {
+        $$ = novo_syntaticno("!=", 2);
+        $$->filhos[0] = novo_syntaticno($1, 0);
+        $$->filhos[1] = $3;
+    }
     ;
 
-arit : expr { $$ = $1; }
+arit : expr { 
+    $$ = $1; 
+    $$->type = NO_RECEBE;
+    }
     | expr error
     ;
 
@@ -335,10 +358,11 @@ void translate_arit(syntaticno *n) {
         printf(" %s ",n->label);
         translate_arit(n->filhos[1]);
     }
-    else if(n->sim->nome){
+    else if(n->constvalue)
+        printf(" %d;\n", n->constvalue);
+    else if(n->sim->nome)
         printf("%s", n->sim->nome);
-    }
-    else 
+    else if(n->label)
         printf("%s", n->label);
 }
 
@@ -358,6 +382,36 @@ void translate_func(syntaticno *n) {
         printf("%s" ,n->label);
     }
 }
+
+void translate_cond (syntaticno *n) {
+    if(n->label == ">" || n->label == "<" || n->label == ">=" || n->label == "<=" || n->label == "==" || n->label == "!="){
+        translate_cond(n->filhos[0]);
+        printf(" %s ",n->label);
+        translate_cond(n->filhos[1]);
+    }
+    else if(n->constvalue)
+        printf("%d ", n->constvalue);
+    else 
+        printf("%s", n->label);
+}
+
+// void translate_while2(syntaticno *n){
+//     if (n->label == "+" || n->label == "-" || n->label == "/" || n->label == "*") {
+//         translate_while2(n->filhos[0]);
+//         printf(" %s ",n->label);
+//         translate_while2(n->filhos[1]);
+//     }
+//     else if(n->constvalue)
+//         printf(" %d;\n", n->constvalue);
+//     else 
+//         printf("%s", n->label);
+// }
+
+// void translate_while(syntaticno *n) {
+//     printf("%s = ", n->label);
+//     translate_while2(n->filhos[0]);
+//     printf("\n");
+// }
 
 void translate_struct_name(syntaticno *n) {
     printf("%c%s {\n", toupper(n->label[0]), n->label+1);
@@ -390,7 +444,7 @@ void translate(syntaticno *n) {
     else if(n->type == NO_RECEBE) {
         printf("%s = ", n->label);
         translate_arit(n->filhos[0]);
-        printf(";\n");
+        printf(";\n\n");
     }
     else if (n->type == NO_INCLUDE) {
         printf("use ");
@@ -419,6 +473,21 @@ void translate(syntaticno *n) {
         translate_struct_name(n->filhos[0]);
         translate_struct(n->filhos[1]);
         printf("}\n\n");
+    }
+    else if(n->type == NO_IF){
+        printf("%s ", n->label);
+        translate_cond(n->filhos[0]);
+        printf("{\n");
+        translate(n->filhos[1]);
+        printf("\n}");
+    }
+    else if(n->type == NO_WHILE) {
+        printf("%s ", n->label);
+        translate_cond(n->filhos[0]);
+        printf("{\n");
+        translate(n->filhos[1]);
+        printf("}\n");
+
     }
     else{
         for(int i = 0; i < n->qtdfilhos; i++)

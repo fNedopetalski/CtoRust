@@ -59,7 +59,9 @@ extern int yydebug;
     IF = 265,
     GEQUAL = 266,
     LEQUAL = 267,
-    WHILE = 268
+    WHILE = 268,
+    EQUAL = 269,
+    DIFF = 270
   };
 #endif
 
@@ -73,7 +75,7 @@ union YYSTYPE
     int valor;
     struct syntaticno *no;
 
-#line 77 "cmp.tab.h"
+#line 79 "cmp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
