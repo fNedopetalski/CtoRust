@@ -2197,17 +2197,17 @@ void translate(syntaticno *n) {
     switch (n->type)
     {
     case NO_VAR:
-        printf("let %s: ", n->label);
+        printf("let mut %s: ", n->label);
         translate(n->filhos[0]);
         printf(" = ");
         translate(n->filhos[1]);
-        printf("\n");
+        printf(";\n");
         break;
     
     case NO_RECEBE:
          printf("%s = ", n->label);
         translate(n->filhos[0]);
-        printf("\n\n");
+        printf(";\n\n");
     
     case NO_TYPE:
         if (n->label == "int")
@@ -2245,12 +2245,12 @@ void translate(syntaticno *n) {
     
     case NO_ARGS:
         translate(n->filhos[0]);
+        printf(", ");
         translate(n->filhos[1]);
         break;
     
     case NO_ARG:
         translate(n->filhos[1]);
-        // printf("%s",n->label);
         translate(n->filhos[0]);
         break;
     

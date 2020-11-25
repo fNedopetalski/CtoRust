@@ -15,7 +15,7 @@ fn main (){
     c = c / (a * b);
     if c > 0 { 
         while c <= 20 { 
-            c += 1;
+            c = c+1;
         }
     }
 }
