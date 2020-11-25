@@ -71,7 +71,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 42 "cmp.y"
+#line 44 "cmp.y"
 
     char *nome;
     int valor;
