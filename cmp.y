@@ -17,7 +17,7 @@ typedef struct {
 enum TIPONO {NO_INVALIDO, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN,
     NO_STRUCT, NO_RECEBE, NO_IF, NO_WHILE, NO_CONST, NO_OPER, NO_OPERL,
     NO_ARG, NO_ARGS, NO_TYPE, NO_FIELD, NO_FIELDS, NO_IDENT, NO_STMT,
-    NO_ARGT};
+    NO_ARGT, NO_STMTF};
 
 struct syntaticno {
     int id;
@@ -53,14 +53,14 @@ void debug(syntaticno *root);
 %type <nome> IDENT
 %type <valor> NUMBER
 %type <no> prog arit expr term factor stmts stmt type args arg fields 
-%type <no> field exprOR exprAND exprl terml factorl logic
+%type <no> field exprOR exprAND exprl terml factorl logic stmtsF stmtF
 
 
 %start prog
 
 %%
 
-prog : stmts         { if (errorc > 0) 
+prog : stmtsF         { if (errorc > 0) 
                         printf("%d erro(s) encontrado(s)", errorc);
                     else {
                         printf("programa reconhecido\n");
@@ -71,15 +71,15 @@ prog : stmts         { if (errorc > 0)
                 }
     ;
 
-stmts : stmts stmt {
-        $$ = novo_syntaticno(NO_STMT, "stmts", 2);
+stmtsF : stmtsF stmtF {
+        $$ = novo_syntaticno(NO_STMTF, "stmtsF", 2);
         $$->filhos[0] = $1;
         $$->filhos[1] = $2;
     }
-    | stmt { $$ = $1; }
+    | stmtF { $$ = $1; }
     ;
 
-stmt : type IDENT '=' arit ';' {
+stmtF : type IDENT '=' arit ';' {
         char aux[20];
         sprintf(aux, "%s", $2);
         $$ = novo_syntaticno(NO_VAR, strdup(aux), 2);
@@ -87,14 +87,8 @@ stmt : type IDENT '=' arit ';' {
         $$->filhos[1] = $4;
     }
 
-    // c = a * b / d;
-    | IDENT '=' arit ';' {
-        $$ = novo_syntaticno(NO_RECEBE, $1, 1);
-        $$->filhos[0] = $3;
-    }
-    
-    // variável sozinha
-    | type IDENT ';' {
+        // variável sozinha
+        | type IDENT ';' {
         $$ = novo_syntaticno(NO_IDENT, $2, 1);
         $$->filhos[0] = $1;
     }
@@ -113,17 +107,46 @@ stmt : type IDENT '=' arit ';' {
         $$->filhos[0] = novo_syntaticno(NO_IDENT, $4, 0);
     }
 
-    // return 1;
-    | RETURN arit ';' {
-        $$ = novo_syntaticno(NO_RETURN, "return", 1);
-        $$->filhos[0] = $2;
-    }
-
     // struct { fields }
     | STRUCT '{' fields '}' IDENT ';' {
         $$ = novo_syntaticno(NO_STRUCT, "struct", 2);
         $$->filhos[0] = novo_syntaticno(NO_IDENT, $5, 0);
         $$->filhos[1] = $3;
+    }
+    ;
+
+stmts : stmts stmt {
+        $$ = novo_syntaticno(NO_STMT, "stmts", 2);
+        $$->filhos[0] = $1;
+        $$->filhos[1] = $2;
+    }
+    | stmt { $$ = $1; }
+    ;
+
+stmt :  type IDENT '=' arit ';' {
+        char aux[20];
+        sprintf(aux, "%s", $2);
+        $$ = novo_syntaticno(NO_VAR, strdup(aux), 2);
+        $$->filhos[0] = $1;
+        $$->filhos[1] = $4;
+    }
+
+    // variável sozinha
+    | type IDENT ';' {
+        $$ = novo_syntaticno(NO_IDENT, $2, 1);
+        $$->filhos[0] = $1;
+    }
+
+        // c = a * b / d;
+    |IDENT '=' arit ';' {
+        $$ = novo_syntaticno(NO_RECEBE, $1, 1);
+        $$->filhos[0] = $3;
+    }
+
+    // return 1;
+    | RETURN arit ';' {
+        $$ = novo_syntaticno(NO_RETURN, "return", 1);
+        $$->filhos[0] = $2;
     }
 
     // printf()
@@ -356,27 +379,6 @@ syntaticno *novo_syntaticno(enum TIPONO type, char *label, int filhos) {
 }
 
 
-// void translate_type (syntaticno *n){
-//     if (n->label == "int")
-//         printf("u32 ");
-//     else if (n->label == "float")
-//         printf("f32 ");
-// }
-
-// void translate_args(syntaticno *n){
-//     if(strcmp(n->label, "args") == 0){
-//         translate_args(n->filhos[0]);
-//         translate_args(n->filhos[1]);
-//     }
-//     else if(strcmp(n->label, "arg") == 0) {
-//         translate_args(n->filhos[1]);
-//         translate_type(n->filhos[0]);
-//     }
-//     else {
-//         printf("%s: ", n->label);
-//     }
-// }
-
 void translate_include(syntaticno *n) {
     if (strcmp(n->label, "stdio") == 0)
         printf("std::io;\n");
@@ -384,67 +386,10 @@ void translate_include(syntaticno *n) {
         printf("%s",n->label);
 }
 
-// void translate_arit(syntaticno *n) {
-//     if (n->label == "+" || n->label == "-" || n->label == "/" || n->label == "*") {
-//         translate_arit(n->filhos[0]);
-//         printf(" %s ",n->label);
-//         translate_arit(n->filhos[1]);
-//     }
-//     else if(n->constvalue)
-//         printf(" %d;\n", n->constvalue);
-//     else if(n->sim->nome)
-//         printf("%s", n->sim->nome);
-//     else if(n->label)
-//         printf("%s", n->label);
-// }
-
-// void translate_const(syntaticno *n) {
-//     if(n->constvalue)
-//         printf(" %d;\n", n->constvalue);
-//     else
-//         translate_arit(n);
-// }
-
-// void translate_func(syntaticno *n) {
-//     if (n->type == NO_RETURN) {
-//         printf("return ");
-//         translate_arit(n->filhos[0]);
-//     }
-//     else {
-//         printf("%s" ,n->label);
-//     }
-// }
-
-// void translate_cond (syntaticno *n) {
-//     if(n->label == ">" || n->label == "<" || n->label == ">=" || n->label == "<=" || n->label == "==" || n->label == "!="){
-//         translate_cond(n->filhos[0]);
-//         printf(" %s ",n->label);
-//         translate_cond(n->filhos[1]);
-//     }
-//     else if(n->constvalue)
-//         printf("%d ", n->constvalue);
-//     else 
-//         printf("%s", n->label);
-// }
 
 void translate_struct_name(syntaticno *n) {
     printf("%c%s {\n", toupper(n->label[0]), n->label+1);
 }
-
-// void translate_struct(syntaticno *n) {
-//     if(strcmp(n->label, "fields") == 0){
-//         translate_struct(n->filhos[0]);
-//         translate_struct(n->filhos[1]);
-//     }
-//     else if(strcmp(n->label, "field") == 0) {
-//         translate_struct(n->filhos[1]);
-//         translate_type(n->filhos[0]);
-//         printf(",\n");
-//     }
-//     else {
-//         printf("\t%s: ", n->label);
-//     }
-// }
 
 void translate(syntaticno *n) {    
 
@@ -532,7 +477,7 @@ void translate(syntaticno *n) {
         printf("%s ",n->label);
         translate_struct_name(n->filhos[0]);
         translate(n->filhos[1]);
-        printf("\n}");
+        printf("\n}\n");
         break;
 
     case NO_FIELDS:
@@ -556,7 +501,7 @@ void translate(syntaticno *n) {
         translate(n->filhos[0]);
         printf("{\n\t");
         translate(n->filhos[1]);
-        printf("\n}");
+        printf("\n}\n");
         break;
 
     case NO_WHILE:
@@ -573,67 +518,6 @@ void translate(syntaticno *n) {
             translate(n->filhos[i]);
         break;
     }
-
-    // if (n->type == NO_VAR){
-    //     printf("let %s: ", n->label);
-    //     translate_type(n->filhos[0]);
-    //     printf(" = ");
-    //     translate_const(n->filhos[1]);
-    //     printf("\n");
-    // }
-    // else if(n->type == NO_RECEBE) {
-    //     printf("%s = ", n->label);
-    //     translate_arit(n->filhos[0]);
-    //     printf("\n\n");
-    // }
-    // else if (n->type == NO_INCLUDE) {
-    //     printf("use ");
-    //     translate_include(n->filhos[0]);
-    //     printf("\n");
-    // } 
-    // else if (n->type == NO_FUNCAO) {
-    //     if (strcmp(n->label, "main") == 0) {
-    //         printf("fn main() {\n\t");  
-    //         translate(n->filhos[2]);
-    //         printf("\n}\n\n");
-    //     }
-    //     else {
-    //         printf("fn %s (", n->label);
-    //         translate_args(n->filhos[1]);
-    //         printf(") -> ");
-    //         translate_type(n->filhos[0]);
-    //         printf("{\n\t");
-            
-    //         translate_func(n->filhos[2]);
-    //         printf("\n}\n\n");
-    //     }
-    // }
-    // else if(n->type == NO_STRUCT) {
-    //     printf("%s ",n->label);
-    //     translate_struct_name(n->filhos[0]);
-    //     translate_struct(n->filhos[1]);
-    //     printf("}\n\n");
-    // }
-    // else if(n->type == NO_IF){
-    //     printf("%s ", n->label);
-    //     translate_cond(n->filhos[0]);
-    //     printf("{\n\t");
-    //     translate(n->filhos[1]);
-    //     printf("\n}");
-    // }
-    // else if(n->type == NO_WHILE) {
-    //     printf("%s ", n->label);
-    //     translate_cond(n->filhos[0]);
-    //     printf("{\n\t");
-    //     translate(n->filhos[1]);
-    //     printf("}\n");
-
-    // }
-    // else{
-    //     for(int i = 0; i < n->qtdfilhos; i++)
-    //         translate(n->filhos[i]);
-    // }
-
 }
 
 

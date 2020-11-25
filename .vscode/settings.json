@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.y": "c",
-        "*.txt": "c"
+        "*.txt": "c",
+        "type_traits": "c"
     }
 }
