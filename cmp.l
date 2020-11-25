@@ -14,6 +14,7 @@
 ">"                 { return '>'; }
 "<"                 { return '<'; }
 "="                 { return '='; }
+"\""                { return ASPAS; }
 ">="                { return GEQUAL; }
 "<="                { return LEQUAL; }
 "=="                { return EQUAL; }
@@ -26,7 +27,12 @@
 "struct"            { return STRUCT; }
 "printf"            { return PRINT; }
 "if"                { return IF; }
+"else"              { return ELSE; }
 "while"             { return WHILE; }
+"%d"                { return T_INT; }
+"%f"                { return T_FLOAT; }
+"%s"                { return T_STRING; }
+"%c"                { return T_CHAR; }
 
 
 [0-9]+ { 

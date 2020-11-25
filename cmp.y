@@ -17,7 +17,8 @@ typedef struct {
 enum TIPONO {NO_INVALIDO, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN,
     NO_STRUCT, NO_RECEBE, NO_IF, NO_WHILE, NO_CONST, NO_OPER, NO_OPERL,
     NO_ARG, NO_ARGS, NO_TYPE, NO_FIELD, NO_FIELDS, NO_IDENT, NO_STMT,
-    NO_ARGT, NO_STMTF};
+    NO_ARGT, NO_STMTF, NO_PAREM, NO_PRINT, NO_TYPEP, NO_PPRINT, NO_ELSE,
+    NO_TYPEPP};
 
 struct syntaticno {
     int id;
@@ -48,11 +49,11 @@ void debug(syntaticno *root);
 }
 
 %token NUMBER IDENT TINT TFLOAT RETURN STRUCT PRINT IF GEQUAL LEQUAL WHILE
-%token EQUAL DIFF AND OR
+%token EQUAL DIFF AND OR T_INT T_FLOAT T_STRING T_CHAR ASPAS ELSE 
 
 %type <nome> IDENT
 %type <valor> NUMBER
-%type <no> prog arit expr term factor stmts stmt type args arg fields 
+%type <no> prog arit expr term factor stmts stmt type typeP args arg fields 
 %type <no> field exprOR exprAND exprl terml factorl logic stmtsF stmtF
 
 
@@ -137,7 +138,7 @@ stmt :  type IDENT '=' arit ';' {
         $$->filhos[0] = $1;
     }
 
-        // c = a * b / d;
+    // c = a * b / d;
     |IDENT '=' arit ';' {
         $$ = novo_syntaticno(NO_RECEBE, $1, 1);
         $$->filhos[0] = $3;
@@ -150,15 +151,23 @@ stmt :  type IDENT '=' arit ';' {
     }
 
     // printf()
-    // | PRINT '(' '"' TYPE_IDENT '"' ',' IDENT ')' ';' {
-    //     $$ = novo_syntaticno("print", 0);
-    // }
+    | PRINT '(' ASPAS typeP ASPAS ',' IDENT ')' ';' {
+        $$ = novo_syntaticno(NO_PRINT, "print", 2);
+        $$->filhos[0] = $4;
+        $$->filhos[1] = novo_syntaticno(NO_PPRINT, $7, 0);
+    }
 
     // if( arit ) { stmts }
     | IF '(' logic ')' '{' stmts '}'{
         $$ = novo_syntaticno(NO_IF, "if", 2);
         $$->filhos[0] = $3;
         $$->filhos[1] = $6;
+    }
+
+    // else { stmts }
+    | ELSE '{' stmts '}' {
+        $$ = novo_syntaticno(NO_ELSE, "else", 1);
+        $$->filhos[0] = $3;
     }
 
     // while ( cond ) { stmts }
@@ -184,8 +193,15 @@ field : type IDENT ';' {
     }
     ;
 
+typeP: T_FLOAT      { $$ = novo_syntaticno(NO_TYPEP, "%f", 0); }
+    | T_INT         { $$ = novo_syntaticno(NO_TYPEP, "%d", 0); }         
+    | T_STRING      { $$ = novo_syntaticno(NO_TYPEP, "%s", 0); }         
+    | T_CHAR        { $$ = novo_syntaticno(NO_TYPEP, "%c", 0); } 
+    // | PPRINT        { $$ = novo_syntaticno(NO_TYPEP, "", 0); }
+    ;
+
 type : TINT         { $$ = novo_syntaticno(NO_TYPE, "int", 0); }
-    | TFLOAT        { $$ = novo_syntaticno(NO_TYPE, "float", 0); }
+    | TFLOAT        { $$ = novo_syntaticno(NO_TYPE, "float", 0); }       
     ;
 
 args : args arg {
@@ -213,7 +229,7 @@ logic : exprOR;
     ;
 
 exprOR : exprOR OR exprAND {
-        $$ = novo_syntaticno(NO_OPERL,"or", 2);
+        $$ = novo_syntaticno(NO_OPERL,"||", 2);
         $$->filhos[0] = $1;
         $$->filhos[1] = $3;
     }
@@ -222,7 +238,7 @@ exprOR : exprOR OR exprAND {
     ;
 
 exprAND : exprAND AND exprl {
-        $$ = novo_syntaticno(NO_OPERL,"and", 2);
+        $$ = novo_syntaticno(NO_OPERL,"&&", 2);
         $$->filhos[0] = $1;
         $$->filhos[1] = $3;
     }
@@ -278,9 +294,9 @@ terml : terml '>' factorl {
     ;
 
 factorl : '(' exprl ')' {
-			// $$ = novo_syntaticno("()", 1);
-			// $$->filhos[0] = $2;
-			$$ = $2;
+			$$ = novo_syntaticno(NO_PAREM, "()", 1);
+			$$->filhos[0] = $2;
+			// $$ = $2;
 		 }
 
 		| arit { $$ = $1; }
@@ -319,10 +335,10 @@ term : term '*' factor {
     ;
 
 factor : '(' expr ')' {
-        // $$ = novo_syntaticno(/no"()", 1);
-        // $$->filhos[0] = $2;
-        $$ = $2;
-}
+        $$ = novo_syntaticno(NO_PAREM, "()", 1);
+        $$->filhos[0] = $2;
+        // $$ = $2;
+    }
     | NUMBER {
         $$ = novo_syntaticno(NO_CONST, "const", 0);
         $$->constvalue = $1;
@@ -391,10 +407,18 @@ void translate_struct_name(syntaticno *n) {
     printf("%c%s {\n", toupper(n->label[0]), n->label+1);
 }
 
-void translate(syntaticno *n) {    
+void translate(syntaticno *n) {
+    
 
     switch (n->type)
     {
+
+    case NO_PAREM:
+        printf("(");
+        translate(n->filhos[0]);
+        printf(")");
+        break;
+
     case NO_VAR:
         printf("let mut %s: ", n->label);
         translate(n->filhos[0]);
@@ -427,7 +451,7 @@ void translate(syntaticno *n) {
     
     case NO_FUNCAO:
         if (strcmp(n->label, "main") == 0) {
-            printf("fn main() {\n\t");  
+            printf("fn main() {\n"); 
             translate(n->filhos[2]);
             printf("\n}\n\n");
         }
@@ -499,17 +523,40 @@ void translate(syntaticno *n) {
     case NO_IF:
         printf("%s ", n->label);
         translate(n->filhos[0]);
-        printf("{\n\t");
+        printf("{\n");
         translate(n->filhos[1]);
+        printf("\n}\n");
+        break;
+    
+    case NO_ELSE:
+        printf("%s {\n", n->label);
+        translate(n->filhos[0]);
         printf("\n}\n");
         break;
 
     case NO_WHILE:
         printf("%s ", n->label);
         translate(n->filhos[0]);
-        printf("{\n\t");
+        printf("{\n");
         translate(n->filhos[1]);
         printf("}\n");
+        break;
+
+    case NO_TYPEP:
+        if (n->label == "%d" || n->label == "%f" || n->label == "%s" || n->label == "%c")
+            printf("{} ");
+        break;
+    
+    case NO_PPRINT:
+        printf("%s",n->label);
+        break;
+
+    case NO_PRINT:
+        printf("println!(\"");
+        translate(n->filhos[0]);
+        printf("\", ");
+        translate(n->filhos[1]);
+        printf(");\n");
         break;
     
     

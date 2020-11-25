@@ -63,7 +63,13 @@ extern int yydebug;
     EQUAL = 269,
     DIFF = 270,
     AND = 271,
-    OR = 272
+    OR = 272,
+    T_INT = 273,
+    T_FLOAT = 274,
+    T_STRING = 275,
+    T_CHAR = 276,
+    ASPAS = 277,
+    ELSE = 278
   };
 #endif
 
@@ -71,13 +77,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 44 "cmp.y"
+#line 45 "cmp.y"
 
     char *nome;
     int valor;
     struct syntaticno *no;
 
-#line 81 "cmp.tab.h"
+#line 87 "cmp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
