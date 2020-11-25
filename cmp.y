@@ -15,7 +15,7 @@ typedef struct {
 
 enum TIPONO {NO_INVALIDO, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN,
     NO_STRUCT, NO_RECEBE, NO_IF, NO_WHILE, NO_CONST, NO_OPER, NO_OPERL,
-    NO_ARG, NO_ARGS, NO_FLOAT, NO_FIELD, NO_FIELDS, NO_IDENT, NO_STMT};
+    NO_ARG, NO_ARGS, NO_TYPE, NO_FIELD, NO_FIELDS, NO_IDENT, NO_STMT};
 
 struct syntaticno {
     int id;
@@ -159,8 +159,8 @@ field : type IDENT ';' {
     }
     ;
 
-type : TINT         { $$ = novo_syntaticno(NO_FLOAT, "int", 0); }
-    | TFLOAT        { $$ = novo_syntaticno(NO_FLOAT, "float", 0); }
+type : TINT         { $$ = novo_syntaticno(NO_TYPE, "int", 0); }
+    | TFLOAT        { $$ = novo_syntaticno(NO_TYPE, "float", 0); }
     ;
 
 args : args arg {
@@ -357,155 +357,188 @@ syntaticno *novo_syntaticno(enum TIPONO type, char *label, int filhos) {
 }
 
 
-void translate_type (syntaticno *n){
-    if (n->label == "int")
-        printf("u32 ");
-    else if (n->label == "float")
-        printf("f32 ");
-}
+// void translate_type (syntaticno *n){
+//     if (n->label == "int")
+//         printf("u32 ");
+//     else if (n->label == "float")
+//         printf("f32 ");
+// }
 
-void translate_args(syntaticno *n){
-    if(strcmp(n->label, "args") == 0){
-        translate_args(n->filhos[0]);
-        translate_args(n->filhos[1]);
-    }
-    else if(strcmp(n->label, "arg") == 0) {
-        translate_args(n->filhos[1]);
-        translate_type(n->filhos[0]);
-    }
-    else {
-        printf("%s: ", n->label);
-    }
-}
+// void translate_args(syntaticno *n){
+//     if(strcmp(n->label, "args") == 0){
+//         translate_args(n->filhos[0]);
+//         translate_args(n->filhos[1]);
+//     }
+//     else if(strcmp(n->label, "arg") == 0) {
+//         translate_args(n->filhos[1]);
+//         translate_type(n->filhos[0]);
+//     }
+//     else {
+//         printf("%s: ", n->label);
+//     }
+// }
 
 void translate_include(syntaticno *n) {
     if (strcmp(n->label, "stdio") == 0)
         printf("std::io;\n");
 }
 
-void translate_arit(syntaticno *n) {
-    if (n->label == "+" || n->label == "-" || n->label == "/" || n->label == "*") {
-        translate_arit(n->filhos[0]);
-        printf(" %s ",n->label);
-        translate_arit(n->filhos[1]);
-    }
-    else if(n->constvalue)
-        printf(" %d;\n", n->constvalue);
-    else if(n->sim->nome)
-        printf("%s", n->sim->nome);
-    else if(n->label)
-        printf("%s", n->label);
-}
+// void translate_arit(syntaticno *n) {
+//     if (n->label == "+" || n->label == "-" || n->label == "/" || n->label == "*") {
+//         translate_arit(n->filhos[0]);
+//         printf(" %s ",n->label);
+//         translate_arit(n->filhos[1]);
+//     }
+//     else if(n->constvalue)
+//         printf(" %d;\n", n->constvalue);
+//     else if(n->sim->nome)
+//         printf("%s", n->sim->nome);
+//     else if(n->label)
+//         printf("%s", n->label);
+// }
 
-void translate_const(syntaticno *n) {
-    if(n->constvalue)
-        printf(" %d;\n", n->constvalue);
-    else
-        translate_arit(n);
-}
+// void translate_const(syntaticno *n) {
+//     if(n->constvalue)
+//         printf(" %d;\n", n->constvalue);
+//     else
+//         translate_arit(n);
+// }
 
-void translate_func(syntaticno *n) {
-    if (n->type == NO_RETURN) {
-        printf("return ");
-        translate_arit(n->filhos[0]);
-    }
-    else {
-        printf("%s" ,n->label);
-    }
-}
+// void translate_func(syntaticno *n) {
+//     if (n->type == NO_RETURN) {
+//         printf("return ");
+//         translate_arit(n->filhos[0]);
+//     }
+//     else {
+//         printf("%s" ,n->label);
+//     }
+// }
 
-void translate_cond (syntaticno *n) {
-    if(n->label == ">" || n->label == "<" || n->label == ">=" || n->label == "<=" || n->label == "==" || n->label == "!="){
-        translate_cond(n->filhos[0]);
-        printf(" %s ",n->label);
-        translate_cond(n->filhos[1]);
-    }
-    else if(n->constvalue)
-        printf("%d ", n->constvalue);
-    else 
-        printf("%s", n->label);
-}
+// void translate_cond (syntaticno *n) {
+//     if(n->label == ">" || n->label == "<" || n->label == ">=" || n->label == "<=" || n->label == "==" || n->label == "!="){
+//         translate_cond(n->filhos[0]);
+//         printf(" %s ",n->label);
+//         translate_cond(n->filhos[1]);
+//     }
+//     else if(n->constvalue)
+//         printf("%d ", n->constvalue);
+//     else 
+//         printf("%s", n->label);
+// }
 
-void translate_struct_name(syntaticno *n) {
-    printf("%c%s {\n\t", toupper(n->label[0]), n->label+1);
-}
+// void translate_struct_name(syntaticno *n) {
+//     printf("%c%s {\n\t", toupper(n->label[0]), n->label+1);
+// }
 
-void translate_struct(syntaticno *n) {
-    if(strcmp(n->label, "fields") == 0){
-        translate_struct(n->filhos[0]);
-        translate_struct(n->filhos[1]);
-    }
-    else if(strcmp(n->label, "field") == 0) {
-        translate_struct(n->filhos[1]);
-        translate_type(n->filhos[0]);
-        printf(",\n");
-    }
-    else {
-        printf("\t%s: ", n->label);
-    }
-}
+// void translate_struct(syntaticno *n) {
+//     if(strcmp(n->label, "fields") == 0){
+//         translate_struct(n->filhos[0]);
+//         translate_struct(n->filhos[1]);
+//     }
+//     else if(strcmp(n->label, "field") == 0) {
+//         translate_struct(n->filhos[1]);
+//         translate_type(n->filhos[0]);
+//         printf(",\n");
+//     }
+//     else {
+//         printf("\t%s: ", n->label);
+//     }
+// }
 
 void translate(syntaticno *n) {
     
-    if (n->type == NO_VAR){
+    switch (n->type)
+    {
+    case NO_VAR:
         printf("let %s: ", n->label);
-        translate_type(n->filhos[0]);
+        translate(n->filhos[0]);
         printf(" = ");
-        translate_const(n->filhos[1]);
+        translate(n->filhos[1]);
         printf("\n");
-    }
-    else if(n->type == NO_RECEBE) {
-        printf("%s = ", n->label);
-        translate_arit(n->filhos[0]);
-        printf("\n\n");
-    }
-    else if (n->type == NO_INCLUDE) {
+        break;
+    
+    case NO_TYPE:
+        if (n->label == "int")
+            printf("u32 ");
+        else if (n->label == "float")
+            printf("f32 ");
+        break;
+    
+    case NO_CONST:
+        printf("%d", n->constvalue);
+        break;
+
+    case NO_INCLUDE:
         printf("use ");
         translate_include(n->filhos[0]);
         printf("\n");
-    } 
-    else if (n->type == NO_FUNCAO) {
-        if (strcmp(n->label, "main") == 0) {
-            printf("fn main() {\n\t");  
-            translate(n->filhos[2]);
-            printf("\n}\n\n");
-        }
-        else {
-            printf("fn %s (", n->label);
-            translate_args(n->filhos[1]);
-            printf(") -> ");
-            translate_type(n->filhos[0]);
-            printf("{\n\t");
-            
-            translate_func(n->filhos[2]);
-            printf("\n}\n\n");
-        }
-    }
-    else if(n->type == NO_STRUCT) {
-        printf("%s ",n->label);
-        translate_struct_name(n->filhos[0]);
-        translate_struct(n->filhos[1]);
-        printf("}\n\n");
-    }
-    else if(n->type == NO_IF){
-        printf("%s ", n->label);
-        translate_cond(n->filhos[0]);
-        printf("{\n\t");
-        translate(n->filhos[1]);
-        printf("\n}");
-    }
-    else if(n->type == NO_WHILE) {
-        printf("%s ", n->label);
-        translate_cond(n->filhos[0]);
-        printf("{\n\t");
-        translate(n->filhos[1]);
-        printf("}\n");
-
-    }
-    else{
+        break;
+    
+    default:
         for(int i = 0; i < n->qtdfilhos; i++)
             translate(n->filhos[i]);
+        break;
     }
+
+    // if (n->type == NO_VAR){
+    //     printf("let %s: ", n->label);
+    //     translate_type(n->filhos[0]);
+    //     printf(" = ");
+    //     translate_const(n->filhos[1]);
+    //     printf("\n");
+    // }
+    // else if(n->type == NO_RECEBE) {
+    //     printf("%s = ", n->label);
+    //     translate_arit(n->filhos[0]);
+    //     printf("\n\n");
+    // }
+    // else if (n->type == NO_INCLUDE) {
+    //     printf("use ");
+    //     translate_include(n->filhos[0]);
+    //     printf("\n");
+    // } 
+    // else if (n->type == NO_FUNCAO) {
+    //     if (strcmp(n->label, "main") == 0) {
+    //         printf("fn main() {\n\t");  
+    //         translate(n->filhos[2]);
+    //         printf("\n}\n\n");
+    //     }
+    //     else {
+    //         printf("fn %s (", n->label);
+    //         translate_args(n->filhos[1]);
+    //         printf(") -> ");
+    //         translate_type(n->filhos[0]);
+    //         printf("{\n\t");
+            
+    //         translate_func(n->filhos[2]);
+    //         printf("\n}\n\n");
+    //     }
+    // }
+    // else if(n->type == NO_STRUCT) {
+    //     printf("%s ",n->label);
+    //     translate_struct_name(n->filhos[0]);
+    //     translate_struct(n->filhos[1]);
+    //     printf("}\n\n");
+    // }
+    // else if(n->type == NO_IF){
+    //     printf("%s ", n->label);
+    //     translate_cond(n->filhos[0]);
+    //     printf("{\n\t");
+    //     translate(n->filhos[1]);
+    //     printf("\n}");
+    // }
+    // else if(n->type == NO_WHILE) {
+    //     printf("%s ", n->label);
+    //     translate_cond(n->filhos[0]);
+    //     printf("{\n\t");
+    //     translate(n->filhos[1]);
+    //     printf("}\n");
+
+    // }
+    // else{
+    //     for(int i = 0; i < n->qtdfilhos; i++)
+    //         translate(n->filhos[i]);
+    // }
 
 }
 
