@@ -429,6 +429,11 @@ void translate_struct_name(syntaticno *n) {
     printf("%c%s {", toupper(n->label[0]), n->label+1);
 }
 
+void tab(int level){
+    for (int i = 0; i < level; i++)
+        printf("\t");
+}
+
 void translate(syntaticno *n) {    
 
     switch (n->type)
@@ -439,10 +444,9 @@ void translate(syntaticno *n) {
         translate(n->filhos[0]);
         printf(")");
         break;
-
+    
     case NO_VAR:
-        for (int i = 0; i < level; i++)
-            printf("\t");
+        tab(level);
         if(level >= 1)
             printf("let mut %s: ", n->label);
         else {
@@ -458,8 +462,7 @@ void translate(syntaticno *n) {
         break;
     
     case NO_RECEBE:
-        for (int i = 0; i < level; i++)
-            printf("\t");
+        tab(level);
         printf("%s = ", n->label);
         translate(n->filhos[0]);
         printf(";\n\n");
@@ -508,8 +511,7 @@ void translate(syntaticno *n) {
         break;
 
     case NO_DFUNC:
-        for (int i = 0; i < level; i++)
-            printf("\t");
+        tab(level);
         printf("let ");
         translate(n->filhos[1]);
         printf(": ");
@@ -570,23 +572,20 @@ void translate(syntaticno *n) {
         break;
     
     case NO_FIELD:
-        for (int i = 0; i < level; i++)
-            printf("\t");
+        tab(level);
         translate(n->filhos[1]);
         translate(n->filhos[0]);
         printf(",\n");
         break;
 
     case NO_RETURN:
-        for (int i = 0; i < level; i++)
-            printf("\t");
+        tab(level);
         printf("%s ", n->label);
         translate(n->filhos[0]);
         break;
 
     case NO_IF:
-        for (int i = 0; i < level; i++)
-            printf("\t");
+        tab(level);
         printf("%s ", n->label);
         translate(n->filhos[0]);
         printf("{\n");
@@ -597,8 +596,7 @@ void translate(syntaticno *n) {
         break;
     
     case NO_ELSE:
-        for (int i = 0; i < level; i++)
-            printf("\t");
+        tab(level);
         printf("%s {\n", n->label);
         level++;
         translate(n->filhos[0]);
@@ -607,8 +605,7 @@ void translate(syntaticno *n) {
         break;
 
     case NO_WHILE:
-        for (int i = 0; i < level; i++)
-            printf("\t");
+        tab(level);
         printf("%s ", n->label);
         translate(n->filhos[0]);
         printf("{\n");
@@ -628,8 +625,7 @@ void translate(syntaticno *n) {
         break;
 
     case NO_PRINT:
-        for (int i = 0; i < level; i++)
-            printf("\t");
+        tab(level);
         printf("println!(\"");
         translate(n->filhos[0]);
         printf("\", ");
