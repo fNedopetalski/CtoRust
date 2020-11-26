@@ -23,7 +23,6 @@ graph prog {
 The graph from the program will appear.
 
 ![Graph](./graph.png)
-<img src="./graph.png" width="200" height="200">
 
 Right below it a Rust code should appear. You can check how it should like in the Rust *teste* file.
 
