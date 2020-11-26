@@ -109,6 +109,7 @@ stmtF : type IDENT '=' arit ';' {
         $$->filhos[0] = novo_syntaticno(NO_IDENT, $4, 0);
     }
     
+    // comentario
     | COMMENT {
         $$ = novo_syntaticno(NO_COMMENT, $1, 0);
     }
@@ -168,6 +169,11 @@ stmt :  type IDENT '=' arit ';' {
         $$ = novo_syntaticno(NO_PRINT, "print", 2);
         $$->filhos[0] = $4;
         $$->filhos[1] = novo_syntaticno(NO_PPRINT, $7, 0);
+    }
+
+    // comentario
+    | COMMENT {
+        $$ = novo_syntaticno(NO_COMMENT, $1, 0);
     }
 
     // if( arit ) { stmts }
@@ -466,6 +472,7 @@ void translate(syntaticno *n) {
         break;
 
     case NO_COMMENT:
+        tab(level);
         printf("%s",n->label);
         printf("\n");
         break;

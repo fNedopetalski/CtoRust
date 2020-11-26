@@ -2,6 +2,7 @@ use std::io;
 
 static ABC: u32  = 45;
 // comentario
+
 fn func(v: u32 ,c: u32 ) -> u32 {
     return v*c
 }
@@ -16,7 +17,7 @@ fn main() {
     let mut e: f32  = 39.000000;
     let mut c: u32  = (a+b)/b;
     c = c/(a*b);
-
+    // comentario 2
     let d: u32 = func(a,b);
     if c > 1 && b < 10{
         while c <= 20{
