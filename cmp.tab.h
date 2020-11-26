@@ -69,7 +69,8 @@ extern int yydebug;
     T_STRING = 275,
     T_CHAR = 276,
     ASPAS = 277,
-    ELSE = 278
+    ELSE = 278,
+    FLOAT = 279
   };
 #endif
 
@@ -77,13 +78,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 45 "cmp.y"
+#line 46 "cmp.y"
 
     char *nome;
     int valor;
     struct syntaticno *no;
 
-#line 87 "cmp.tab.h"
+#line 88 "cmp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

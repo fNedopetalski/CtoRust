@@ -7,7 +7,7 @@
 int yyerror(const char *s);
 int yylex(void);
 int errorc = 0;
-int level;
+int level = 0;
 
 typedef struct {
     char *nome;
@@ -18,7 +18,7 @@ enum TIPONO {NO_INVALIDO, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN,
     NO_STRUCT, NO_RECEBE, NO_IF, NO_WHILE, NO_CONST, NO_OPER, NO_OPERL,
     NO_ARG, NO_ARGS, NO_TYPE, NO_FIELD, NO_FIELDS, NO_IDENT, NO_STMT,
     NO_ARGT, NO_STMTF, NO_PAREM, NO_PRINT, NO_TYPEP, NO_PPRINT, NO_ELSE,
-    NO_TYPEPP, NO_DFUNC, NO_ARGNT};
+    NO_TYPEPP, NO_DFUNC, NO_ARGNT, NO_FLOAT};
 
 struct syntaticno {
     int id;
@@ -26,6 +26,7 @@ struct syntaticno {
     char *label;
     simbolo *sim;
     int constvalue;
+    float floatvalue;
     int qtdfilhos;
     struct syntaticno *filhos[1]; //ultimo campo
 };
@@ -49,10 +50,10 @@ void debug(syntaticno *root);
 }
 
 %token NUMBER IDENT TINT TFLOAT RETURN STRUCT PRINT IF GEQUAL LEQUAL WHILE
-%token EQUAL DIFF AND OR T_INT T_FLOAT T_STRING T_CHAR ASPAS ELSE 
+%token EQUAL DIFF AND OR T_INT T_FLOAT T_STRING T_CHAR ASPAS ELSE FLOAT
 
 %type <nome> IDENT
-%type <valor> NUMBER
+%type <valor> NUMBER FLOAT
 %type <no> prog arit expr term factor stmts stmt type typeP args arg fields 
 %type <no> field exprOR exprAND exprl terml factorl logic stmtsF stmtF
 
@@ -114,7 +115,6 @@ stmtF : type IDENT '=' arit ';' {
         $$->filhos[0] = novo_syntaticno(NO_IDENT, $5, 0);
         $$->filhos[1] = $3;
     }
-    ;
 
 stmts : stmts stmt {
         $$ = novo_syntaticno(NO_STMT, "stmts", 2);
@@ -359,6 +359,12 @@ factor : '(' expr ')' {
         $$ = novo_syntaticno(NO_CONST, "const", 0);
         $$->constvalue = $1;
     }
+
+    | FLOAT {
+        $$ = novo_syntaticno(NO_FLOAT, "const", 0);
+        $$->floatvalue = $1;
+    }
+
     | IDENT {
         simbolo *s = simbolo_existe($1);
         if (!s)
@@ -424,8 +430,6 @@ void translate_struct_name(syntaticno *n) {
 }
 
 void translate(syntaticno *n) {    
-    // for (int i = 0; i < level; i++)
-    //     printf("%d",level);
 
     switch (n->type)
     {
@@ -439,7 +443,14 @@ void translate(syntaticno *n) {
     case NO_VAR:
         for (int i = 0; i < level; i++)
             printf("\t");
-        printf("let mut %s: ", n->label);
+        if(level >= 1)
+            printf("let mut %s: ", n->label);
+        else {
+            printf("static ");
+            for (int i = 0; i < strlen(n->label); i++)
+                printf("%c",toupper(n->label[i]));
+            printf(": ");
+        }
         translate(n->filhos[0]);
         printf(" = ");
         translate(n->filhos[1]);
@@ -463,6 +474,10 @@ void translate(syntaticno *n) {
     
     case NO_CONST:
         printf("%d", n->constvalue);
+        break;
+
+    case NO_FLOAT:
+        printf("%f", n->floatvalue);
         break;
 
     case NO_INCLUDE:
@@ -577,8 +592,8 @@ void translate(syntaticno *n) {
         printf("{\n");
         level++;
         translate(n->filhos[1]);
-        printf("\n}\n");
         level--;
+        printf("\n}\n");
         break;
     
     case NO_ELSE:

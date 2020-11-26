@@ -39,6 +39,10 @@
     yylval.valor = atoi(yytext);
     return NUMBER; 
 }
+[0-9]+\.[0-9]+ { 
+    yylval.valor = atoi(yytext);
+    return FLOAT; 
+}
 
 [a-zA-Z_][a-zA-Z0-9_]*  {
     yylval.nome = strdup(yytext);

@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+int abc = 45;
+
 int func(int v, int c) {
     return v*c;
 }
@@ -13,8 +15,10 @@ struct {
 int main(int argc) {
     int a = 10;
     int b = 30;
+    float e = 39.9;
     int c = (a + b) / b;
     c = c / (a * b);
+
     int d = func(a,b);
     if (c > 1 && b < 10) {
         while (c <= 20) {
