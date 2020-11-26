@@ -18,7 +18,7 @@ enum TIPONO {NO_INVALIDO, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN,
     NO_STRUCT, NO_RECEBE, NO_IF, NO_WHILE, NO_CONST, NO_OPER, NO_OPERL,
     NO_ARG, NO_ARGS, NO_TYPE, NO_FIELD, NO_FIELDS, NO_IDENT, NO_STMT,
     NO_ARGT, NO_STMTF, NO_PAREM, NO_PRINT, NO_TYPEP, NO_PPRINT, NO_ELSE,
-    NO_TYPEPP};
+    NO_TYPEPP, NO_DFUNC, NO_ARGNT};
 
 struct syntaticno {
     int id;
@@ -144,6 +144,15 @@ stmt :  type IDENT '=' arit ';' {
         $$->filhos[0] = $3;
     }
 
+    // int d = exemplo(a,b);
+    | type IDENT '=' IDENT '(' args ')' ';' {
+        $$ = novo_syntaticno(NO_DFUNC, "funcDecl", 4);
+        $$->filhos[0] = $1;
+        $$->filhos[1] = novo_syntaticno(NO_PPRINT, $2, 0);
+        $$->filhos[2] = novo_syntaticno(NO_PPRINT, $4, 0);
+        $$->filhos[3] = $6;
+    }
+
     // return 1;
     | RETURN arit ';' {
         $$ = novo_syntaticno(NO_RETURN, "return", 1);
@@ -197,7 +206,6 @@ typeP: T_FLOAT      { $$ = novo_syntaticno(NO_TYPEP, "%f", 0); }
     | T_INT         { $$ = novo_syntaticno(NO_TYPEP, "%d", 0); }         
     | T_STRING      { $$ = novo_syntaticno(NO_TYPEP, "%s", 0); }         
     | T_CHAR        { $$ = novo_syntaticno(NO_TYPEP, "%c", 0); } 
-    // | PPRINT        { $$ = novo_syntaticno(NO_TYPEP, "", 0); }
     ;
 
 type : TINT         { $$ = novo_syntaticno(NO_TYPE, "int", 0); }
@@ -221,6 +229,14 @@ arg : type IDENT {
         $$ = novo_syntaticno(NO_ARG, "arg", 2);
         $$->filhos[0] = $1;
         $$->filhos[1] = novo_syntaticno(NO_ARGT, $2, 0);
+    }
+    | IDENT {
+        $$ = novo_syntaticno(NO_ARGNT, "arg", 1);
+        $$->filhos[0] = novo_syntaticno(NO_PPRINT, $1, 0);
+    }
+    | IDENT ',' {
+        $$ = novo_syntaticno(NO_ARGNT, "arg", 1);
+        $$->filhos[0] = novo_syntaticno(NO_PPRINT, $1, 0);
     }
     ;
 
@@ -475,6 +491,20 @@ void translate(syntaticno *n) {
             level--;
         }
         break;
+
+    case NO_DFUNC:
+        for (int i = 0; i < level; i++)
+            printf("\t");
+        printf("let ");
+        translate(n->filhos[1]);
+        printf(": ");
+        translate(n->filhos[0]);
+        printf("= ");
+        translate(n->filhos[2]);
+        printf("(");
+        translate(n->filhos[3]);
+        printf(");\n");
+        break;
     
     case NO_ARGS:
         translate(n->filhos[0]);
@@ -484,6 +514,10 @@ void translate(syntaticno *n) {
     
     case NO_ARG:
         translate(n->filhos[1]);
+        translate(n->filhos[0]);
+        break;
+
+    case NO_ARGNT:
         translate(n->filhos[0]);
         break;
     
