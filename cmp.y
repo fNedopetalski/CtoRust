@@ -18,7 +18,7 @@ enum TIPONO {NO_INVALIDO, NO_VAR, NO_INCLUDE, NO_FUNCAO, NO_RETURN,
     NO_STRUCT, NO_RECEBE, NO_IF, NO_WHILE, NO_CONST, NO_OPER, NO_OPERL,
     NO_ARG, NO_ARGS, NO_TYPE, NO_FIELD, NO_FIELDS, NO_IDENT, NO_STMT,
     NO_ARGT, NO_STMTF, NO_PAREM, NO_PRINT, NO_TYPEP, NO_PPRINT, NO_ELSE,
-    NO_TYPEPP, NO_DFUNC, NO_ARGNT, NO_FLOAT};
+    NO_TYPEPP, NO_DFUNC, NO_ARGNT, NO_FLOAT, NO_COMMENT};
 
 struct syntaticno {
     int id;
@@ -50,9 +50,9 @@ void debug(syntaticno *root);
 }
 
 %token NUMBER IDENT TINT TFLOAT RETURN STRUCT PRINT IF GEQUAL LEQUAL WHILE
-%token EQUAL DIFF AND OR T_INT T_FLOAT T_STRING T_CHAR ASPAS ELSE FLOAT
+%token EQUAL DIFF AND OR T_INT T_FLOAT T_STRING T_CHAR ASPAS ELSE FLOAT COMMENT
 
-%type <nome> IDENT
+%type <nome> IDENT COMMENT
 %type <valor> NUMBER FLOAT
 %type <no> prog arit expr term factor stmts stmt type typeP args arg fields 
 %type <no> field exprOR exprAND exprl terml factorl logic stmtsF stmtF
@@ -108,6 +108,10 @@ stmtF : type IDENT '=' arit ';' {
         $$ = novo_syntaticno(NO_INCLUDE,"include", 1);
         $$->filhos[0] = novo_syntaticno(NO_IDENT, $4, 0);
     }
+    
+    | COMMENT {
+        $$ = novo_syntaticno(NO_COMMENT, $1, 0);
+    }
 
     // struct { fields }
     | STRUCT '{' fields '}' IDENT ';' {
@@ -115,7 +119,7 @@ stmtF : type IDENT '=' arit ';' {
         $$->filhos[0] = novo_syntaticno(NO_IDENT, $5, 0);
         $$->filhos[1] = $3;
     }
-
+    ;
 stmts : stmts stmt {
         $$ = novo_syntaticno(NO_STMT, "stmts", 2);
         $$->filhos[0] = $1;
@@ -459,6 +463,11 @@ void translate(syntaticno *n) {
         printf(" = ");
         translate(n->filhos[1]);
         printf(";\n");
+        break;
+
+    case NO_COMMENT:
+        printf("%s",n->label);
+        printf("\n");
         break;
     
     case NO_RECEBE:

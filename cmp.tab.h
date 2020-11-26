@@ -70,7 +70,8 @@ extern int yydebug;
     T_CHAR = 276,
     ASPAS = 277,
     ELSE = 278,
-    FLOAT = 279
+    FLOAT = 279,
+    COMMENT = 280
   };
 #endif
 
@@ -84,7 +85,7 @@ union YYSTYPE
     int valor;
     struct syntaticno *no;
 
-#line 88 "cmp.tab.h"
+#line 89 "cmp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

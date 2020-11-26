@@ -44,6 +44,11 @@
     return FLOAT; 
 }
 
+"//".* {
+    yylval.nome = strdup(yytext);
+    return COMMENT;
+}
+
 [a-zA-Z_][a-zA-Z0-9_]*  {
     yylval.nome = strdup(yytext);
     return IDENT; 

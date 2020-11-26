@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 int abc = 45;
+// comentario
 
 int func(int v, int c) {
     return v*c;

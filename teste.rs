@@ -1,6 +1,7 @@
 use std::io;
 
 static ABC: u32  = 45;
+// comentario
 fn func(v: u32 ,c: u32 ) -> u32 {
     return v*c
 }
